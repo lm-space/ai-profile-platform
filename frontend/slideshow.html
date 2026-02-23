@@ -1,0 +1,2615 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Architect's Journey | Elamurugan</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://api.fontshare.com/v2/css?f[]=general-sans@200,300,400,500,600,700&display=swap"
+        rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Outfit:wght@200;300;400;600&family=Space+Grotesk:wght@300;400;500;700&display=swap"
+        rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <style>
+        :root {
+            --bg-color: #000000;
+            --text-primary: #ffffff;
+            --text-secondary: #a0a0a0;
+            --accent-gold: #D4AF37;
+            --accent-blue: #00f0ff;
+            --accent-purple: #7000ff;
+            --font-heading: 'General Sans', sans-serif;
+            --font-body: 'General Sans', sans-serif;
+            --font-mono: 'Space Grotesk', monospace;
+        }
+
+        /* --- Fullscreen Video Background --- */
+        .video-bg-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -2;
+            overflow: hidden;
+        }
+
+        .video-bg {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .video-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            /* 50% opacity black */
+            z-index: -1;
+        }
+
+        /* --- Navbar --- */
+        .navbar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            padding: 20px 120px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .nav-wordmark {
+            font-family: var(--font-heading);
+            font-weight: 600;
+            font-size: 25px;
+            color: #fff;
+            letter-spacing: 0.02em;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 30px;
+        }
+
+        .nav-link {
+            color: #fff;
+            font-size: 14px;
+            font-weight: 500;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            opacity: 0.9;
+            transition: opacity 0.3s;
+        }
+
+        .nav-link:hover {
+            opacity: 0.7;
+        }
+
+        .nav-arrow {
+            font-size: 10px;
+        }
+
+        /* Pill Button Construction */
+        .pill-btn {
+            position: relative;
+            display: inline-flex;
+            justify-content: center;
+            align-items: center;
+            border-radius: 999px;
+            text-decoration: none;
+            transition: transform 0.2s;
+            overflow: hidden;
+        }
+
+        .pill-btn:hover {
+            transform: scale(1.02);
+        }
+
+        /* Dark Button (Navbar) */
+        .pill-btn-dark {
+            padding: 1px;
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        .pill-inner-dark {
+            background: #000;
+            color: #fff;
+            border-radius: 999px;
+            padding: 11px 29px;
+            font-size: 14px;
+            font-weight: 500;
+            position: relative;
+            z-index: 2;
+        }
+
+        /* Light Button (Hero CTA) */
+        .pill-btn-light {
+            padding: 1px;
+            background: rgba(255, 255, 255, 0.6);
+        }
+
+        .pill-inner-light {
+            background: #fff;
+            color: #000;
+            border-radius: 999px;
+            padding: 11px 29px;
+            font-size: 14px;
+            font-weight: 500;
+            position: relative;
+            z-index: 2;
+        }
+
+        .btn-glow {
+            position: absolute;
+            top: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 60%;
+            height: 20px;
+            background: radial-gradient(ellipse at center, rgba(255, 255, 255, 0.8) 0%, transparent 70%);
+            filter: blur(5px);
+            z-index: 3;
+            pointer-events: none;
+            opacity: 0.6;
+        }
+
+        /* --- Hero Content --- */
+        .hero-layout {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            padding-top: 280px;
+            padding-bottom: 102px;
+            gap: 40px;
+            height: 100vh;
+            position: relative;
+            z-index: 10;
+        }
+
+        /* Status Badge */
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 20px;
+            padding: 6px 16px;
+            font-size: 13px;
+            font-weight: 500;
+            color: #fff;
+            gap: 8px;
+        }
+
+        .status-dot {
+            width: 6px;
+            height: 6px;
+            background: #2ecc71;
+            border-radius: 50%;
+            box-shadow: 0 0 5px #2ecc71;
+        }
+
+        .status-text-muted {
+            opacity: 0.6;
+        }
+
+        /* Hero Heading with Gradient */
+        .hero-heading {
+            font-family: var(--font-heading);
+            font-weight: 500;
+            font-size: 56px;
+            line-height: 1.28;
+            max-width: 800px;
+            background: linear-gradient(144.5deg, #ffffff 28%, rgba(255, 255, 255, 0) 115%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            color: transparent;
+        }
+
+        .hero-subtitle {
+            font-size: 15px;
+            font-weight: 400;
+            color: rgba(255, 255, 255, 0.7);
+            max-width: 680px;
+            line-height: 1.6;
+        }
+
+        /* Override Slide 0 */
+        #slide-0 {
+            display: block;
+            /* Override flex center */
+            justify-content: unset;
+            align-items: unset;
+            padding: 0;
+        }
+
+        /* Media Queries */
+        @media (max-width: 1024px) {
+            .navbar {
+                padding: 20px 40px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .navbar {
+                padding: 20px;
+            }
+
+            .nav-links {
+                display: none;
+            }
+
+            .hero-layout {
+                padding-top: 200px;
+            }
+
+            .hero-heading {
+                font-size: 36px;
+                max-width: 90%;
+            }
+
+            .hero-subtitle {
+                max-width: 90%;
+                font-size: 14px;
+            }
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-primary);
+            font-family: var(--font-body);
+            overflow: hidden;
+            height: 100vh;
+            width: 100vw;
+        }
+
+        /* --- 3D Background Container --- */
+        #canvas-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            opacity: 0.6;
+        }
+
+        /* --- UI Overlay --- */
+        .vignette {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            background: radial-gradient(circle, transparent 40%, #030305 100%);
+            z-index: 0;
+        }
+
+        .noise-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            opacity: 0.03;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+            z-index: 1;
+        }
+
+        /* --- Slides Layout --- */
+        .slides-wrapper {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            z-index: 10;
+        }
+
+        .slide {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 4rem;
+            opacity: 0;
+            visibility: hidden;
+            pointer-events: none;
+            transition: opacity 1s ease;
+        }
+
+        .slide.active {
+            opacity: 1;
+            visibility: visible;
+            pointer-events: all;
+        }
+
+        /* --- Typography --- */
+        h1 {
+            font-family: var(--font-heading);
+            font-size: clamp(3rem, 6vw, 8rem);
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            background: linear-gradient(to right, #fff, #aaa);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 2rem;
+            text-shadow: 0 0 30px rgba(255, 255, 255, 0.1);
+        }
+
+        h2 {
+            font-family: var(--font-heading);
+            font-size: clamp(2rem, 4vw, 4rem);
+            color: var(--accent-gold);
+            margin-bottom: 2rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        h3 {
+            font-family: var(--font-mono);
+            font-size: 1.2rem;
+            color: var(--accent-blue);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 1rem;
+        }
+
+        p {
+            max-width: 800px;
+            font-size: 1.25rem;
+            line-height: 1.8;
+            color: var(--text-secondary);
+            text-align: center;
+        }
+
+        .highlight {
+            color: #fff;
+            font-weight: 600;
+            border-bottom: 1px solid var(--accent-blue);
+        }
+
+        /* --- Specifc Slide Components --- */
+
+        /* Stats Ring */
+        .stats-ring-container {
+            display: flex;
+            gap: 4rem;
+            flex-wrap: wrap;
+            justify-content: center;
+            margin-top: 3rem;
+        }
+
+        .stat-circle {
+            width: 180px;
+            height: 180px;
+            border-radius: 50%;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+            background: rgba(255, 255, 255, 0.02);
+            backdrop-filter: blur(5px);
+        }
+
+        .stat-circle::before {
+            content: '';
+            position: absolute;
+            inset: -5px;
+            border-radius: 50%;
+            border: 2px solid transparent;
+            border-top-color: var(--accent-gold);
+            border-right-color: var(--accent-blue);
+            animation: spin 3s linear infinite;
+        }
+
+        .stat-value {
+            font-family: var(--font-heading);
+            font-size: 3rem;
+            color: #fff;
+        }
+
+        .stat-label {
+            font-family: var(--font-mono);
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--text-secondary);
+            margin-top: 0.5rem;
+        }
+
+        /* --- Tech Cloud / Globe Slide (REPLACES tech-network) --- */
+        .tech-cloud-container {
+            position: relative;
+            width: 100vw;
+            height: 65vh;
+            /* Occupy good central space */
+            margin: 0 auto;
+            perspective: 1000px;
+            overflow: visible;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transform-style: preserve-3d;
+        }
+
+        .tech-card {
+            position: absolute;
+            background: rgba(10, 10, 15, 0.7);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 8px;
+            padding: 0.4rem 0.8rem;
+            color: #fff;
+            font-family: var(--font-mono);
+            font-size: 0.78rem;
+            white-space: nowrap;
+            cursor: pointer;
+            user-select: none;
+            will-change: transform, opacity;
+            transform-style: preserve-3d;
+            transition: border-color 0.3s, background-color 0.3s, box-shadow 0.3s;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+            text-align: center;
+        }
+
+        .tech-card:hover {
+            border-color: var(--accent-gold);
+            background-color: rgba(212, 175, 55, 0.2);
+            box-shadow: 0 0 20px rgba(212, 175, 55, 0.4);
+            z-index: 100 !important;
+        }
+
+        .tech-card-title {
+            font-weight: 600;
+            font-size: 0.9rem;
+            margin-bottom: 0.1rem;
+        }
+
+        .tech-card-cat {
+            font-size: 0.6rem;
+            text-transform: uppercase;
+            opacity: 0.7;
+            letter-spacing: 1px;
+        }
+
+        .tech-card.gold {
+            border-left: 3px solid var(--accent-gold);
+        }
+
+        .tech-card.blue {
+            border-left: 3px solid var(--accent-blue);
+        }
+
+        /* Modal Styles */
+        #tech-modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.85);
+            backdrop-filter: blur(10px);
+            z-index: 9999;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+
+        #tech-modal-overlay.active {
+            opacity: 1;
+            pointer-events: all;
+        }
+
+        #tech-modal-content {
+            width: 80vw;
+            height: 80vh;
+            max-width: 1000px;
+            background: #050508;
+            border: 1px solid var(--accent-gold);
+            border-radius: 20px;
+            padding: 4rem;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            gap: 1.5rem;
+            box-shadow: 0 0 50px rgba(0, 0, 0, 0.8);
+            overflow-y: auto;
+        }
+
+        #tech-modal-close {
+            position: absolute;
+            top: 2rem;
+            right: 2rem;
+            background: transparent;
+            border: none;
+            color: var(--text-secondary);
+            font-size: 2.5rem;
+            cursor: pointer;
+            transition: color 0.3s;
+        }
+
+        #tech-modal-close:hover {
+            color: #fff;
+        }
+
+        #modal-title {
+            font-size: 3rem;
+            color: #fff;
+            margin-bottom: 0.5rem;
+        }
+
+        #modal-category {
+            font-family: var(--font-mono);
+            color: var(--accent-gold);
+            font-size: 1.2rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            padding-bottom: 1rem;
+        }
+
+        #modal-desc {
+            font-size: 1.1rem;
+            line-height: 1.6;
+            color: #ccc;
+            max-width: 700px;
+            text-align: center;
+        }
+
+        #modal-usage {
+            width: 100%;
+            max-width: 700px;
+        }
+
+        #modal-usage h4 {
+            font-family: var(--font-heading);
+            color: var(--accent-blue);
+            margin-bottom: 1rem;
+            font-size: 1.1rem;
+            text-align: center;
+        }
+
+        .project-tag {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 1.2rem;
+            background: rgba(255, 255, 255, 0.06);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            border-radius: 8px;
+            margin-right: 0.7rem;
+            margin-bottom: 0.7rem;
+            color: #fff;
+            font-family: var(--font-body);
+            font-size: 0.85rem;
+        }
+
+        .project-tag .pt-domain {
+            font-size: 0.7rem;
+            color: rgba(255, 255, 255, 0.45);
+            font-style: italic;
+        }
+
+        #modal-projects-list {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 0;
+        }
+
+
+        /* Timeline / Path */
+        .journey-path {
+            width: 80%;
+            max-width: 1000px;
+            position: relative;
+            border-top: 1px solid rgba(255, 255, 255, 0.2);
+            margin-top: 4rem;
+            display: flex;
+            justify-content: space-between;
+            padding-top: 2rem;
+        }
+
+        .journey-node {
+            position: relative;
+            width: 20px;
+            height: 20px;
+            margin-top: -2.7rem;
+            /* Align with border */
+            background: var(--bg-color);
+            border: 2px solid var(--text-secondary);
+            border-radius: 50%;
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+
+        .journey-node:hover,
+        .journey-node.active {
+            background: var(--accent-gold);
+            border-color: var(--accent-gold);
+            box-shadow: 0 0 15px var(--accent-gold);
+        }
+
+        .node-info {
+            position: absolute;
+            top: 3rem;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 200px;
+            text-align: center;
+            opacity: 0.5;
+            transition: opacity 0.3s;
+        }
+
+        .journey-node:hover .node-info,
+        .journey-node.active .node-info {
+            opacity: 1;
+        }
+
+        .node-year {
+            font-family: var(--font-heading);
+            font-size: 1.2rem;
+            color: #fff;
+        }
+
+        .node-role {
+            font-family: var(--font-mono);
+            font-size: 0.8rem;
+            color: var(--accent-blue);
+            margin-top: 0.3rem;
+        }
+
+        /* --- Project Galaxy (Interactive) --- */
+        .project-galaxy-container {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            perspective: 1200px;
+        }
+
+        .project-card {
+            position: absolute;
+            width: 200px;
+            padding: 0.85rem 1rem;
+            color: #fff;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-left: 3px solid var(--card-accent, #D4AF37);
+            border-radius: 10px;
+            font-family: var(--font-heading);
+            text-align: left;
+            cursor: pointer;
+            background: rgba(8, 8, 14, 0.8);
+            backdrop-filter: blur(8px);
+            transition: border-color 0.3s, box-shadow 0.3s, z-index 0s;
+            transform-style: preserve-3d;
+            will-change: transform;
+        }
+
+        .project-card .pc-name {
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin-bottom: 0.2rem;
+            line-height: 1.2;
+        }
+
+        .project-card .pc-domain {
+            font-size: 0.62rem;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            color: var(--card-accent, #D4AF37);
+            margin-bottom: 0.35rem;
+            opacity: 0.9;
+        }
+
+        .project-card .pc-desc {
+            font-size: 0.65rem;
+            line-height: 1.35;
+            color: rgba(255, 255, 255, 0.55);
+            margin-bottom: 0.4rem;
+            font-family: var(--font-body);
+        }
+
+        .project-card .pc-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 3px;
+        }
+
+        .project-card .pc-tag {
+            font-size: 0.55rem;
+            padding: 1px 5px;
+            border-radius: 3px;
+            background: rgba(255, 255, 255, 0.07);
+            color: rgba(255, 255, 255, 0.45);
+            font-family: var(--font-body);
+        }
+
+        .project-card:hover {
+            border-color: var(--card-accent, var(--accent-gold));
+            box-shadow: 0 4px 24px rgba(212, 175, 55, 0.15), inset 0 0 0 1px rgba(255, 255, 255, 0.05);
+            z-index: 100 !important;
+        }
+
+        .orbit-system {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            display: none;
+            justify-content: center;
+            align-items: center;
+            pointer-events: none;
+            /* Let interactions hit specific elements */
+        }
+
+        .orbit-system.active {
+            display: flex;
+            pointer-events: all;
+        }
+
+        .orbit-center {
+            font-size: 2.5rem;
+            color: var(--accent-gold);
+            font-family: var(--font-heading);
+            text-align: center;
+            z-index: 10;
+            text-shadow: 0 0 30px rgba(212, 175, 55, 0.4);
+            cursor: pointer;
+        }
+
+        .orbit-ring {
+            position: absolute;
+            border: 1px dashed rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+            animation: rotate 60s linear infinite;
+        }
+
+        .satellite {
+            position: absolute;
+            background: #000;
+            border: 1px solid var(--accent-blue);
+            color: var(--accent-blue);
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-family: var(--font-mono);
+            font-size: 0.8rem;
+            white-space: nowrap;
+            cursor: default;
+            transition: all 0.3s;
+            box-shadow: 0 0 10px rgba(0, 240, 255, 0.1);
+        }
+
+        .satellite:hover {
+            background: var(--accent-blue);
+            color: #000;
+            transform: scale(1.1);
+            z-index: 20;
+        }
+
+        .back-btn {
+            position: absolute;
+            bottom: 20%;
+            left: 50%;
+            transform: translateX(-50%);
+            padding: 0.8rem 2rem;
+            border: 1px solid var(--text-secondary);
+            color: var(--text-secondary);
+            background: transparent;
+            cursor: pointer;
+            font-family: var(--font-mono);
+            opacity: 0;
+            pointer-events: none;
+            transition: all 0.3s;
+        }
+
+        .back-btn:hover {
+            border-color: #fff;
+            color: #fff;
+        }
+
+        /* --- Testimonials Carousel --- */
+        .testimonial-container {
+            width: 100%;
+            max-width: 900px;
+            height: 320px;
+            position: relative;
+            margin: 2rem auto 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .testimonial-item {
+            position: absolute;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%) translateY(20px);
+            width: 100%;
+            max-width: 800px;
+            opacity: 0;
+            transition: all 1s ease-in-out;
+            text-align: center;
+            pointer-events: none;
+        }
+
+        .testimonial-item.active {
+            opacity: 1;
+            transform: translateX(-50%) translateY(0);
+        }
+
+        .quote-icon {
+            font-size: 4rem;
+            color: var(--accent-gold);
+            opacity: 0.2;
+            font-family: serif;
+            margin-bottom: 1rem;
+            display: block;
+        }
+
+        .quote-text {
+            font-family: var(--font-heading);
+            font-size: 2rem;
+            font-style: italic;
+            line-height: 1.4;
+            color: #fff;
+            margin-bottom: 2rem;
+            text-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+        }
+
+        .quote-author {
+            font-family: var(--font-mono);
+            font-size: 0.9rem;
+            color: var(--accent-blue);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        .quote-role {
+            font-family: var(--font-body);
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            margin-top: 0.3rem;
+        }
+
+        .testimonial-progress-container {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background: rgba(255, 255, 255, 0.04);
+            overflow: hidden;
+            z-index: 50;
+        }
+
+        .testimonial-progress-bar {
+            width: 0%;
+            height: 100%;
+            background: rgba(212, 175, 55, 0.35);
+            transition: width 0.3s linear;
+        }
+
+        /* --- Footer Nav --- */
+        .nav-bar {
+            position: fixed;
+            bottom: 3rem;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 1rem;
+            z-index: 100;
+        }
+
+        .nav-dot {
+            width: 10px;
+            height: 10px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 50%;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .nav-dot.active {
+            background: var(--accent-gold);
+            transform: scale(1.5);
+        }
+
+        .nav-arrows {
+            position: fixed;
+            bottom: 3rem;
+            right: 4rem;
+            display: flex;
+            gap: 1rem;
+            z-index: 100;
+        }
+
+        .arrow-btn {
+            background: transparent;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            color: #fff;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .arrow-btn:hover {
+            border-color: var(--accent-gold);
+            color: var(--accent-gold);
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        /* Loading Screen */
+        #loader {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #000;
+            z-index: 999;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-family: var(--font-mono);
+            color: var(--accent-gold);
+        }
+    </style>
+</head>
+
+<body>
+    <div id="loader">INITIALIZING ARCHITECTURAL PROTOCOLS...</div>
+
+    <!-- Video Background -->
+    <div class="video-bg-container">
+        <video id="hero-video" class="video-bg" autoplay loop muted playsinline>
+            <!-- Source set by JS -->
+        </video>
+        <div class="video-overlay"></div>
+    </div>
+
+    <script>
+        (function () {
+            const videoUrls = [
+                "https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260217_030345_246c0224-10a4-422c-b324-070b7c0eceda.mp4", // Original
+                "https://cdn.pixabay.com/video/2020/06/17/42220-432249673_large.mp4", // Data Center/AI
+                "https://cdn.pixabay.com/video/2023/05/30/165157-832151624_large.mp4"  // Interstellar Black Hole Style
+            ];
+            const randomUrl = videoUrls[Math.floor(Math.random() * videoUrls.length)];
+            const videoElement = document.getElementById('hero-video');
+            if (videoElement) {
+                videoElement.src = randomUrl;
+            }
+        })();
+    </script>
+
+    <!-- 3D Canvas -->
+    <div id="canvas-container"></div>
+    <div class="vignette"></div>
+    <div class="noise-overlay"></div>
+
+    <!-- Navbar -->
+    <nav class="navbar">
+        <div class="nav-wordmark">ELAMURUGAN</div>
+        <div class="nav-links">
+            <a href="#" class="nav-link">Profile <span class="nav-arrow">▼</span></a>
+            <a href="#" class="nav-link">Experience <span class="nav-arrow">▼</span></a>
+            <a href="#" class="nav-link">Philosophy <span class="nav-arrow">▼</span></a>
+            <a href="#" class="nav-link">Contact <span class="nav-arrow">▼</span></a>
+        </div>
+        <a href="#" class="pill-btn pill-btn-dark">
+            <div class="btn-glow"></div>
+            <div class="pill-inner-dark">View Resume</div>
+        </a>
+    </nav>
+
+    <div class="slides-wrapper">
+
+        <!-- Slide 0: The Hook (Hero) -->
+        <div class="slide active" id="slide-0">
+            <div class="hero-layout">
+                <!-- Status Badge -->
+                <div class="status-badge">
+                    <div class="status-dot"></div>
+                    <span class="status-text-muted">Open for roles starting</span>
+                    <span>immediately</span>
+                </div>
+
+                <!-- Gradient Heading -->
+                <h1 class="hero-heading">Architecting Systems at<br>Experience Speed</h1>
+
+                <!-- Subtitle -->
+                <p class="hero-subtitle">
+                    Bridging business intent with technical execution. I build the resilient, scalable, and
+                    high-performance base for creators who move with purpose to shape the future of commerce and
+                    enterprise.
+                </p>
+
+                <!-- CTA Button -->
+                <a href="mailto:elamurugan.nallathambi@gmail.com" class="pill-btn pill-btn-light">
+                    <div class="btn-glow"></div>
+                    <div class="pill-inner-light">Contact Me</div>
+                </a>
+            </div>
+        </div>
+
+        <!-- Slide 1: The Philosophy -->
+        <div class="slide" id="slide-1">
+            <h2>The Philosophy</h2>
+            <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 4rem; margin-top: 2rem;">
+                <div style="text-align: center;">
+                    <div style="font-size: 4rem; margin-bottom: 1rem;">📐</div>
+                    <h3 style="color: #fff;">Code First</h3>
+                    <p style="font-size: 0.9rem;">Diagrams are theories. Code is reality. I validate architecture
+                        through execution.</p>
+                </div>
+                <div style="text-align: center;">
+                    <div style="font-size: 4rem; margin-bottom: 1rem;">⚙️</div>
+                    <h3 style="color: #fff;">Automate Everything</h3>
+                    <p style="font-size: 0.9rem;">If it happens twice, script it. CI/CD and IaC are non-negotiable.</p>
+                </div>
+                <div style="text-align: center;">
+                    <div style="font-size: 4rem; margin-bottom: 1rem;">⚡</div>
+                    <h3 style="color: #fff;">Sub-2-Second</h3>
+                    <p style="font-size: 0.9rem;">Performance is a feature. Speed builds trust. Latency kills
+                        conversion.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 2: The Scale -->
+        <div class="slide" id="slide-2">
+            <h2>By The Numbers</h2>
+            <p>A legacy of building systems that survive production at enterprise scale.</p>
+            <div class="stats-ring-container">
+                <div class="stat-circle">
+                    <span class="stat-value">19+</span>
+                    <span class="stat-label">Years Building</span>
+                </div>
+                <div class="stat-circle">
+                    <span class="stat-value">200+</span>
+                    <span class="stat-label">Stores Shipped</span>
+                </div>
+                <div class="stat-circle">
+                    <span class="stat-value">500K+</span>
+                    <span class="stat-label">Peak Daily Visitors</span>
+                </div>
+                <div class="stat-circle">
+                    <span class="stat-value">&lt;2s</span>
+                    <span class="stat-label">Load Time Target</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 3: The Tech Ecosystem (Cloud / Globe with Mini Cards) -->
+        <div class="slide" id="slide-3">
+            <h2 id="eco-title" style="z-index: 2; position: relative;">The Ecosystem</h2>
+            <p id="eco-desc"
+                style="z-index: 2; position: relative; background: rgba(0,0,0,0.5); padding: 0.5rem 1rem; border-radius: 20px;">
+                (Click background to Group by Domain • Click again to Scatter • Click any card to Explore)
+            </p>
+
+            <div class="tech-cloud-container" id="tech-cloud">
+                <!-- Populated by JS -->
+            </div>
+
+            <!-- Expansion Modal -->
+            <div id="tech-modal-overlay">
+                <div id="tech-modal-content">
+                    <button id="tech-modal-close">×</button>
+                    <h2 id="modal-title">Tech Name</h2>
+                    <h3 id="modal-category">Category</h3>
+                    <div id="modal-body">
+                        <p id="modal-desc"></p>
+                        <div id="modal-usage">
+                            <h4>Used In Projects:</h4>
+                            <div id="modal-projects-list"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 4: The Journey (Timeline) -->
+        <div class="slide" id="slide-4">
+            <h2>The Evolution</h2>
+            <p>From LAMP stack origins to Cloud-Native Enterprise Architecture.</p>
+
+            <div class="journey-path">
+                <div class="journey-node" data-year="2008">
+                    <div class="node-info">
+                        <div class="node-year">2008</div>
+                        <div class="node-role">Web Developer</div>
+                        <div style="font-size: 0.8rem; color: #888;">SoftSolutions4u</div>
+                    </div>
+                </div>
+                <div class="journey-node" data-year="2011">
+                    <div class="node-info">
+                        <div class="node-year">2011</div>
+                        <div class="node-role">Founder</div>
+                        <div style="font-size: 0.8rem; color: #888;">EBDUS Startup</div>
+                    </div>
+                </div>
+                <div class="journey-node" data-year="2017">
+                    <div class="node-info">
+                        <div class="node-year">2017</div>
+                        <div class="node-role">Lead Architect</div>
+                        <div style="font-size: 0.8rem; color: #888;">OneTeam US</div>
+                    </div>
+                </div>
+                <div class="journey-node active" data-year="2019">
+                    <div class="node-info">
+                        <div class="node-year">2019-Present</div>
+                        <div class="node-role">Enterprise Architect</div>
+                        <div style="font-size: 0.8rem; color: #888;">Global Tech Major</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 5: The Work (INTERACTIVE GALAXY) -->
+        <div class="slide" id="slide-5">
+            <h2 id="signature-work-title" style="margin-bottom: 2rem;">Signature Work</h2>
+            <p id="signature-work-desc" style="opacity:0.7;font-size:0.9rem;">Click any project to explore its
+                architectural core</p>
+
+            <div class="project-galaxy-container" id="project-galaxy">
+                <!-- Floating Orbs populated via JS -->
+            </div>
+
+            <div class="orbit-system" id="orbit-system">
+                <div class="orbit-center" id="orbit-center-text">CENTER</div>
+                <button class="back-btn" id="galaxy-back-btn">RETURN TO GALAXY</button>
+            </div>
+        </div>
+
+        <!-- Slide 6: Testimonials -->
+        <div class="slide" id="slide-6">
+            <h2>Voices of Collaboration</h2>
+            <div class="testimonial-container">
+                <!-- Items populated by JS -->
+                <div class="testimonial-progress-container">
+                    <div class="testimonial-progress-bar"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 7: The End -->
+        <div class="slide" id="slide-7">
+            <h2>Let's Do Great Work.</h2>
+            <p style="margin-bottom: 2rem;">Architecture is about seeing the future and building the bridge to get
+                there.</p>
+            <a href="mailto:elamurugan.nallathambi@gmail.com" style="
+                display: inline-block;
+                padding: 1rem 3rem;
+                background: transparent;
+                border: 1px solid var(--accent-gold);
+                color: var(--accent-gold);
+                text-decoration: none;
+                font-family: var(--font-mono);
+                text-transform: uppercase;
+                letter-spacing: 2px;
+                transition: all 0.3s;
+            ">Contact Me</a>
+
+            <div style="margin-top: 3rem; display: flex; gap: 2rem;">
+                <a href="#" style="color: #fff; text-decoration: none; font-family: var(--font-mono);">LinkedIn</a>
+                <a href="#" style="color: #fff; text-decoration: none; font-family: var(--font-mono);">GitHub</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Navigation -->
+    <div class="nav-bar">
+        <div class="nav-dot active" data-slide="0"></div>
+        <div class="nav-dot" data-slide="1"></div>
+        <div class="nav-dot" data-slide="2"></div>
+        <div class="nav-dot" data-slide="3"></div>
+        <div class="nav-dot" data-slide="4"></div>
+        <div class="nav-dot" data-slide="5"></div>
+        <div class="nav-dot" data-slide="6"></div>
+        <div class="nav-dot" data-slide="7"></div>
+    </div>
+
+    <div class="nav-arrows">
+        <button class="arrow-btn" id="prevBtn">←</button>
+        <button class="arrow-btn" id="nextBtn">→</button>
+    </div>
+
+    <script>
+        // --- Testimonials Data ---
+        const testimonials = [
+            {
+                quote: "My favorite projects usually involved Ela. I was confident any project involving him would be our best.",
+                role: "International IT Consultant",
+                company: "OneTeam US"
+            },
+            {
+                quote: "I learned more working under Ela than I have with any other team lead. Whenever anyone had any issue with bugs or architecture, we asked Ela.",
+                role: "CTO",
+                company: "Former Colleague"
+            },
+            {
+                quote: "He will elevate any technical team to the next level. Very knowledgeable in multiple programming languages.",
+                role: "Business Analyst",
+                company: "OneTeam US"
+            },
+            {
+                quote: "One of my recommended guys. A complete professional.",
+                role: "Technology Lead",
+                company: "Cognizant"
+            },
+            {
+                quote: "I have never seen such a dedicated person. He is very keen on client satisfaction and will go to any extent to get that done.",
+                role: "Web3 Developer",
+                company: "Peer"
+            },
+            {
+                quote: "Reliable and consistent in delivering results.",
+                role: "Client",
+                company: "MedTech & Life Sciences"
+            }
+        ];
+
+        // --- Full Connected Tech Data (with categories for grouping) ---
+        const techKeywords = [
+            // Cloud & Infrastructure
+            { text: "AWS", cat: "Cloud & Infra", type: "blue", weight: 3 },
+            { text: "Azure", cat: "Cloud & Infra", type: "blue", weight: 3 },
+            { text: "GCP", cat: "Cloud & Infra", type: "blue", weight: 2 },
+            { text: "Docker", cat: "Cloud & Infra", type: "blue", weight: 2 },
+            { text: "Kubernetes", cat: "Cloud & Infra", type: "blue", weight: 3 },
+            { text: "EKS / ECS", cat: "Cloud & Infra", type: "blue", weight: 2 },
+            { text: "Lambda", cat: "Cloud & Infra", type: "blue", weight: 2 },
+            { text: "Terraform", cat: "Cloud & Infra", type: "blue", weight: 3 },
+
+            // DevOps & CI/CD
+            { text: "Jenkins", cat: "DevOps & CI/CD", type: "blue", weight: 2 },
+            { text: "GitHub Actions", cat: "DevOps & CI/CD", type: "blue", weight: 2 },
+            { text: "GitLab CI", cat: "DevOps & CI/CD", type: "white", weight: 1 },
+            { text: "Grafana", cat: "DevOps & CI/CD", type: "white", weight: 2 },
+            { text: "Prometheus", cat: "DevOps & CI/CD", type: "white", weight: 1 },
+            { text: "CloudFormation", cat: "DevOps & CI/CD", type: "white", weight: 1 },
+            { text: "Nginx / Varnish", cat: "DevOps & CI/CD", type: "white", weight: 2 },
+
+            // Backend & Languages
+            { text: "Node.js", cat: "Backend & Languages", type: "gold", weight: 3 },
+            { text: "PHP (14+ yrs)", cat: "Backend & Languages", type: "gold", weight: 3 },
+            { text: "Java / Spring", cat: "Backend & Languages", type: "white", weight: 2 },
+            { text: ".NET Core / C#", cat: "Backend & Languages", type: "white", weight: 2 },
+            { text: "Python", cat: "Backend & Languages", type: "gold", weight: 2 },
+            { text: "GraphQL", cat: "Backend & Languages", type: "gold", weight: 2 },
+            { text: "REST APIs", cat: "Backend & Languages", type: "white", weight: 2 },
+
+            // eCommerce & ERP
+            { text: "Magento 1 & 2", cat: "eCommerce & ERP", type: "gold", weight: 3 },
+            { text: "Adobe Commerce", cat: "eCommerce & ERP", type: "gold", weight: 3 },
+            { text: "Headless Commerce", cat: "eCommerce & ERP", type: "gold", weight: 3 },
+            { text: "SAP ECC (IDoc/BAPI)", cat: "eCommerce & ERP", type: "gold", weight: 3 },
+            { text: "EDI X12", cat: "eCommerce & ERP", type: "gold", weight: 2 },
+            { text: "MS Dynamics", cat: "eCommerce & ERP", type: "white", weight: 2 },
+            { text: "Azure Logic Apps", cat: "eCommerce & ERP", type: "blue", weight: 2 },
+            { text: "B2B / B2C", cat: "eCommerce & ERP", type: "blue", weight: 2 },
+
+            // Frontend & UI
+            { text: "React", cat: "Frontend & UI", type: "gold", weight: 3 },
+            { text: "Next.js", cat: "Frontend & UI", type: "white", weight: 2 },
+            { text: "Angular", cat: "Frontend & UI", type: "white", weight: 2 },
+            { text: "HTML5 / CSS3", cat: "Frontend & UI", type: "white", weight: 1 },
+            { text: "D3.js", cat: "Frontend & UI", type: "white", weight: 2 },
+            { text: "LESS / SASS", cat: "Frontend & UI", type: "white", weight: 1 },
+
+            // Data & AI
+            { text: "Databricks", cat: "Data & AI", type: "gold", weight: 3 },
+            { text: "Apache Spark", cat: "Data & AI", type: "white", weight: 2 },
+            { text: "Delta Lake", cat: "Data & AI", type: "white", weight: 2 },
+            { text: "OpenAI / Claude", cat: "Data & AI", type: "gold", weight: 3 },
+            { text: "RAG Pipelines", cat: "Data & AI", type: "gold", weight: 3 },
+            { text: "Vector DB", cat: "Data & AI", type: "blue", weight: 2 },
+            { text: "LangChain", cat: "Data & AI", type: "white", weight: 2 },
+
+            // Databases & Caching
+            { text: "PostgreSQL", cat: "Databases", type: "white", weight: 2 },
+            { text: "MySQL", cat: "Databases", type: "white", weight: 2 },
+            { text: "Redis", cat: "Databases", type: "white", weight: 2 },
+            { text: "MongoDB", cat: "Databases", type: "white", weight: 1 },
+            { text: "DynamoDB", cat: "Databases", type: "blue", weight: 2 },
+            { text: "Aurora", cat: "Databases", type: "blue", weight: 2 }
+        ];
+
+        // --- Project Galaxy Data ---
+        const projects = [
+            {
+                id: "industrial",
+                name: "Industrial Packaging",
+                domain: "Enterprise B2B/B2C Commerce",
+                desc: "16-engineer, 4-track program with deep SAP ECC integration and global inventory orchestration",
+                color: "#4A9BD9",
+                tags: ["SAP ECC", "Azure", "Hybris", "EDI X12"],
+                details: [
+                    { category: "Functional", tools: ["B2B/B2C", "Order Mgmt", "Global Inventory"] },
+                    { category: "Technology", tools: ["SAP ECC", "Azure Logic Apps", "Hybris"] },
+                    { category: "Cloud", tools: ["Azure", "Service Bus", "CDN"] },
+                    { category: "Quality", tools: ["Automated Regression", "LoadRunner"] }
+                ]
+            },
+            {
+                id: "healthcare",
+                name: "Healthcare & Wellness",
+                domain: "HIPAA-Compliant eCommerce",
+                desc: "Zero-downtime Magento 1→2 migration on Kubernetes with 70% page-load improvement",
+                color: "#4CAF50",
+                tags: ["Headless Magento", "AWS EKS", "GraphQL"],
+                details: [
+                    { category: "Functional", tools: ["HIPAA", "Practitioner Portal", "Patient Care"] },
+                    { category: "Technology", tools: ["Headless Magento", "React", "GraphQL"] },
+                    { category: "Cloud", tools: ["AWS EKS", "Lambda", "DynamoDB"] },
+                    { category: "Quality", tools: ["Jest", "Cypress", "SonarQube"] }
+                ]
+            },
+            {
+                id: "govtech",
+                name: "GovTech Analytics",
+                domain: "Public Sector Data Platform",
+                desc: "ETL pipelines aggregating NCES, census & assessment data for 800+ school districts",
+                color: "#9C27B0",
+                tags: ["Angular", "D3.js", "PowerBI", "SQL Server"],
+                details: [
+                    { category: "Functional", tools: ["Public Sector", "Financials", "Census Data"] },
+                    { category: "Technology", tools: ["Angular", "D3.js", "SQL Server"] },
+                    { category: "Cloud", tools: ["Azure Data Factory", "PowerBI"] },
+                    { category: "Quality", tools: ["Data Validation", "ETL Unit Tests"] }
+                ]
+            },
+            {
+                id: "retail",
+                name: "High-Scale D2C Retail",
+                domain: "Omnichannel Commerce",
+                desc: "Live gold-rate pricing engine with 500K+ peak daily visitors on edge infrastructure",
+                color: "#FF9800",
+                tags: ["Next.js", "Cloudflare Workers", "Postgres"],
+                details: [
+                    { category: "Functional", tools: ["Gold Rate Live", "Scheme Mgmt", "Omnichannel"] },
+                    { category: "Technology", tools: ["Next.js", "Node.js", "Postgres"] },
+                    { category: "Cloud", tools: ["Cloudflare Workers", "R2", "D1"] },
+                    { category: "Quality", tools: ["Lighthouse 100", "Playwright"] }
+                ]
+            },
+            {
+                id: "biotech",
+                name: "Deep Tech Bio-Intel",
+                domain: "Genomics & AI Research",
+                desc: "ML pipelines for genomic pattern recognition with automated lab instrumentation",
+                color: "#00BCD4",
+                tags: ["Python", "TensorFlow", "GCP", "FastAPI"],
+                details: [
+                    { category: "Functional", tools: ["Genomics", "Pattern Rec", "Lab Auto"] },
+                    { category: "Technology", tools: ["Python", "TensorFlow", "FastAPI"] },
+                    { category: "Cloud", tools: ["GCP", "BigQuery", "Docker"] },
+                    { category: "Quality", tools: ["PyTest", "Model Eval"] }
+                ]
+            },
+            {
+                id: "fintech",
+                name: "FinTech Trading Platform",
+                domain: "Real-Time Trading & Analytics",
+                desc: "Sub-second WebSocket trade execution with ICT strategy engine and risk management",
+                color: "#F44336",
+                tags: ["WebSockets", "Go", "Redis", "Postgres"],
+                details: [
+                    { category: "Functional", tools: ["ICT Logic", "Risk Mgmt", "Journaling"] },
+                    { category: "Technology", tools: ["WebSockets", "Go", "Redis"] },
+                    { category: "Cloud", tools: ["DigitalOcean", "Nginx", "Postgres"] },
+                    { category: "Quality", tools: ["Unit Testing", "Stress Testing"] }
+                ]
+            },
+            {
+                id: "pricing",
+                name: "Enterprise Pricing Modeler",
+                domain: "Big Data Analytics",
+                desc: "Spark ETL + Delta Lake analytics for Fortune 500 consumer goods pricing optimization",
+                color: "#E91E63",
+                tags: ["Databricks", "Apache Spark", "Delta Lake"],
+                details: [
+                    { category: "Functional", tools: ["Price Modeling", "Forecasting", "Scenario Analysis"] },
+                    { category: "Technology", tools: ["Databricks", "Spark", "Delta Lake"] },
+                    { category: "Cloud", tools: ["AWS", "S3", "Glue"] },
+                    { category: "Quality", tools: ["Data Quality", "Regression Tests"] }
+                ]
+            },
+            {
+                id: "magento200",
+                name: "200+ Magento Stores",
+                domain: "Multi-Tenant eCommerce",
+                desc: "Built and maintained 200+ storefronts across Magento 1 & 2 over 14+ years",
+                color: "#FF5722",
+                tags: ["Magento 1 & 2", "PHP", "MySQL", "Redis"],
+                details: [
+                    { category: "Functional", tools: ["Multi-Store", "Catalog Mgmt", "Payment Gateways"] },
+                    { category: "Technology", tools: ["Magento", "PHP", "MySQL"] },
+                    { category: "Cloud", tools: ["AWS", "Varnish", "Redis"] },
+                    { category: "Quality", tools: ["MFTF", "PHPUnit", "Load Testing"] }
+                ]
+            },
+            {
+                id: "mvcframework",
+                name: "Custom MVC Framework",
+                domain: "Enterprise Framework Design",
+                desc: "Built ground-up MVC eCommerce framework with XML layout engine for 100K+ SKU catalogs",
+                color: "#795548",
+                tags: ["PHP", "XML Layout", "ORM", "SAP Integration"],
+                details: [
+                    { category: "Functional", tools: ["Catalog Engine", "XML Layouts", "Plugin System"] },
+                    { category: "Technology", tools: ["PHP", "Custom ORM", "SAP"] },
+                    { category: "Cloud", tools: ["Dedicated Hosting", "CDN"] },
+                    { category: "Quality", tools: ["Unit Tests", "Stress Testing"] }
+                ]
+            },
+            {
+                id: "marketplace",
+                name: "Multi-Vendor Marketplace",
+                domain: "B2B Marketplace Platform",
+                desc: "Multi-vendor marketplace with vendor onboarding, commission engines, and split payments",
+                color: "#607D8B",
+                tags: ["Magento 2", "Microservices", "AWS"],
+                details: [
+                    { category: "Functional", tools: ["Vendor Portal", "Commission Engine", "Split Pay"] },
+                    { category: "Technology", tools: ["Magento 2", "Node.js", "React"] },
+                    { category: "Cloud", tools: ["AWS ECS", "RDS", "ElastiCache"] },
+                    { category: "Quality", tools: ["Integration Tests", "Load Tests"] }
+                ]
+            },
+            {
+                id: "aiassistant",
+                name: "AI Portfolio Assistant",
+                domain: "Conversational AI + RAG",
+                desc: "Production RAG pipeline with session memory, streaming SSE, and Mermaid diagram generation",
+                color: "#D4AF37",
+                tags: ["OpenAI", "Cloudflare Workers", "Vector DB"],
+                details: [
+                    { category: "Functional", tools: ["RAG", "Session Memory", "Diagrams"] },
+                    { category: "Technology", tools: ["OpenAI", "Hono", "D1"] },
+                    { category: "Cloud", tools: ["Cloudflare Workers", "Vectorize", "R2"] },
+                    { category: "Quality", tools: ["Prompt Engineering", "Eval Suites"] }
+                ]
+            },
+            {
+                id: "devops",
+                name: "Enterprise DevOps Pipelines",
+                domain: "CI/CD & Infrastructure",
+                desc: "Multi-environment CI/CD with Docker, Terraform IaC, and zero-downtime blue-green deploys",
+                color: "#3F51B5",
+                tags: ["Jenkins", "Docker", "Terraform", "K8s"],
+                details: [
+                    { category: "Functional", tools: ["CI/CD", "IaC", "Blue-Green Deploy"] },
+                    { category: "Technology", tools: ["Jenkins", "Docker", "Terraform"] },
+                    { category: "Cloud", tools: ["AWS", "Azure", "GCP"] },
+                    { category: "Quality", tools: ["SonarQube", "Security Scans"] }
+                ]
+            }
+        ];
+
+        // --- Three.js Background System ---
+        const initThreeJS = () => {
+            const container = document.getElementById('canvas-container');
+            const scene = new THREE.Scene();
+            const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+            const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
+
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            container.appendChild(renderer.domElement);
+
+            // Particles
+            const particlesGeometry = new THREE.BufferGeometry();
+            const particlesCount = 1500;
+            const posArray = new Float32Array(particlesCount * 3);
+
+            for (let i = 0; i < particlesCount * 3; i++) {
+                posArray[i] = (Math.random() - 0.5) * 15; // Spread
+            }
+
+            particlesGeometry.setAttribute('position', new THREE.BufferAttribute(posArray, 3));
+
+            const material = new THREE.PointsMaterial({
+                size: 0.005,
+                color: 0xD4AF37, // Gold
+                transparent: true,
+                opacity: 0.8,
+            });
+
+            const particlesMesh = new THREE.Points(particlesGeometry, material);
+            scene.add(particlesMesh);
+
+            camera.position.z = 3;
+
+            // Mouse interaction
+            let mouseX = 0;
+            let mouseY = 0;
+            const windowHalfX = window.innerWidth / 2;
+            const windowHalfY = window.innerHeight / 2;
+            document.addEventListener('mousemove', (event) => {
+                mouseX = (event.clientX - windowHalfX);
+                mouseY = (event.clientY - windowHalfY);
+            });
+            const clock = new THREE.Clock();
+            const animate = () => {
+                const elapsedTime = clock.getElapsedTime();
+                particlesMesh.rotation.y = elapsedTime * 0.05;
+                particlesMesh.rotation.x = -mouseY * 0.0001;
+                particlesMesh.rotation.y += mouseX * 0.0001;
+                renderer.render(scene, camera);
+                requestAnimationFrame(animate);
+            };
+            animate();
+            window.addEventListener('resize', () => {
+                camera.aspect = window.innerWidth / window.innerHeight;
+                camera.updateProjectionMatrix();
+                renderer.setSize(window.innerWidth, window.innerHeight);
+            });
+            return { scene, particlesMesh, camera };
+        };
+
+        // --- Tech Cloud with Category Grouping ---
+        const initTechCloud = () => {
+            const container = document.getElementById('tech-cloud');
+            const words = [];
+            let isGrouped = false;
+
+            // Modal Elements
+            const modalOverlay = document.getElementById('tech-modal-overlay');
+            const modalClose = document.getElementById('tech-modal-close');
+            const modalTitle = document.getElementById('modal-title');
+            const modalCat = document.getElementById('modal-category');
+            const modalDesc = document.getElementById('modal-desc');
+            const modalProjects = document.getElementById('modal-projects-list');
+
+            // Close Modal
+            const closeModal = () => {
+                modalOverlay.classList.remove('active');
+            };
+            modalClose.addEventListener('click', closeModal);
+            modalOverlay.addEventListener('click', (e) => {
+                if (e.target === modalOverlay) closeModal();
+            });
+
+            // Category group positions — spread organically across the viewport
+            // cx/cy as percentage offsets from center of container
+            const categories = [...new Set(techKeywords.map(t => t.cat))];
+            const groupPositions = {
+                'Cloud & Infra': { cx: -35, cy: -34 },
+                'DevOps & CI/CD': { cx: 28, cy: -34 },
+                'Backend & Languages': { cx: -37, cy: -2 },
+                'eCommerce & ERP': { cx: 30, cy: -2 },
+                'Frontend & UI': { cx: -30, cy: 30 },
+                'Data & AI': { cx: 5, cy: 30 },
+                'Databases': { cx: 35, cy: 30 }
+            };
+
+            // Category labels (created when grouped)
+            const categoryLabels = [];
+
+            // Initialize Cards
+            techKeywords.forEach((tech, i) => {
+                const el = document.createElement('div');
+                el.classList.add('tech-card', tech.type);
+
+                const title = document.createElement('div');
+                title.className = 'tech-card-title';
+                title.textContent = tech.text;
+
+                const cat = document.createElement('div');
+                cat.className = 'tech-card-cat';
+                cat.textContent = tech.cat;
+
+                el.appendChild(title);
+                el.appendChild(cat);
+                container.appendChild(el);
+
+                // Scattered cloud position — spread across full viewport
+                const cloudPos = {
+                    x: (Math.random() - 0.5) * window.innerWidth * 0.75,
+                    y: (Math.random() - 0.5) * window.innerHeight * 0.55,
+                    z: (Math.random() - 0.5) * 400
+                };
+
+                words.push({ el, cloudPos, tech, floatTween: null });
+
+                // Initial placement
+                gsap.set(el, { x: cloudPos.x, y: cloudPos.y, z: cloudPos.z, opacity: 0 });
+                gsap.to(el, { opacity: 1, duration: 1, delay: Math.random() * 0.8 });
+
+                // Gentle floating
+                const floatTween = gsap.to(el, {
+                    x: `+=${(Math.random() - 0.5) * 80}`,
+                    y: `+=${(Math.random() - 0.5) * 80}`,
+                    duration: 6 + Math.random() * 8,
+                    repeat: -1,
+                    yoyo: true,
+                    ease: "sine.inOut"
+                });
+                words[words.length - 1].floatTween = floatTween;
+
+                // Click to explore
+                el.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    openTechModal(tech);
+                });
+            });
+
+            // Calculate grouped positions for each card within its category cluster
+            const getGroupedPositions = () => {
+                const catItems = {};
+                words.forEach(w => {
+                    if (!catItems[w.tech.cat]) catItems[w.tech.cat] = [];
+                    catItems[w.tech.cat].push(w);
+                });
+
+                const vw = window.innerWidth;
+                const vh = window.innerHeight * 0.65;
+
+                // Card sizing — generous spacing so they don't overlap
+                const cardW = 140;
+                const cardH = 48;
+                const gapX = 14;
+                const gapY = 12;
+                const labelOffset = 30; // Space below the label
+
+                Object.keys(catItems).forEach(cat => {
+                    const group = catItems[cat];
+                    const gp = groupPositions[cat] || { cx: 0, cy: 0 };
+                    const centerX = (gp.cx / 100) * vw;
+                    const centerY = (gp.cy / 100) * vh;
+
+                    // Use 2 columns for most groups, 3 for larger ones
+                    const cols = group.length <= 6 ? 2 : 3;
+                    const totalRows = Math.ceil(group.length / cols);
+
+                    // Calculate total grid size for centering
+                    const gridW = cols * (cardW + gapX) - gapX;
+                    const gridH = totalRows * (cardH + gapY) - gapY;
+
+                    group.forEach((w, idx) => {
+                        const row = Math.floor(idx / cols);
+                        const col = idx % cols;
+                        // How many items in this row (last row might be shorter)
+                        const rowItems = Math.min(cols, group.length - row * cols);
+                        const rowW = rowItems * (cardW + gapX) - gapX;
+
+                        w.groupPos = {
+                            x: centerX + col * (cardW + gapX) - rowW / 2 + cardW / 2,
+                            y: centerY + labelOffset + row * (cardH + gapY) - gridH / 2,
+                            z: 0
+                        };
+                    });
+
+                    // Store grid center for label positioning
+                    if (!catItems[cat]._labelPos) {
+                        catItems[cat]._labelPos = {
+                            x: centerX,
+                            y: centerY - gridH / 2 - 5
+                        };
+                    }
+                });
+
+                // Expose label positions
+                getGroupedPositions._catItems = catItems;
+            };
+
+            // Create category label elements — centered above each group
+            const showCategoryLabels = () => {
+                removeCategoryLabels();
+                const catItems = getGroupedPositions._catItems || {};
+
+                Object.keys(groupPositions).forEach(cat => {
+                    const lbl = document.createElement('div');
+                    lbl.style.cssText = `
+                        position: absolute;
+                        font-family: var(--font-mono);
+                        font-size: 0.75rem;
+                        text-transform: uppercase;
+                        letter-spacing: 2px;
+                        color: var(--accent-gold);
+                        font-weight: 700;
+                        pointer-events: none;
+                        white-space: nowrap;
+                        z-index: 50;
+                        opacity: 0;
+                        text-align: center;
+                        transform: translateX(-50%);
+                        text-shadow: 0 0 15px rgba(212, 175, 55, 0.4);
+                    `;
+                    lbl.textContent = cat;
+                    container.appendChild(lbl);
+
+                    // Position centered above the card group
+                    const labelPos = catItems[cat] && catItems[cat]._labelPos
+                        ? catItems[cat]._labelPos
+                        : { x: (groupPositions[cat].cx / 100) * window.innerWidth, y: (groupPositions[cat].cy / 100) * window.innerHeight * 0.65 - 30 };
+
+                    gsap.set(lbl, { x: labelPos.x, y: labelPos.y });
+                    gsap.to(lbl, { opacity: 1, duration: 0.8, delay: 0.4 });
+                    categoryLabels.push(lbl);
+                });
+            };
+
+            const removeCategoryLabels = () => {
+                categoryLabels.forEach(lbl => {
+                    gsap.to(lbl, { opacity: 0, duration: 0.3, onComplete: () => lbl.remove() });
+                });
+                categoryLabels.length = 0;
+            };
+
+            // Open Modal Logic
+            // Curated tech → project mappings reflecting real usage across 14+ years
+            // Core techs like React, PHP, Node.js touch many projects
+            const projectById = {};
+            projects.forEach(p => { projectById[p.id] = p; });
+
+            const explicitTechMap = {
+                // Frontend & UI
+                "React": ["healthcare", "retail", "marketplace", "aiassistant", "fintech", "magento200"],
+                "Next.js": ["retail", "marketplace", "aiassistant"],
+                "Angular": ["govtech", "pricing", "industrial"],
+                "HTML5 / CSS3": ["magento200", "healthcare", "retail", "marketplace", "industrial", "mvcframework"],
+                "D3.js": ["govtech", "pricing", "biotech"],
+                "LESS / SASS": ["magento200", "industrial", "healthcare", "marketplace"],
+
+                // Backend & Languages
+                "Node.js": ["healthcare", "retail", "marketplace", "aiassistant", "fintech", "magento200"],
+                "PHP (14+ yrs)": ["magento200", "healthcare", "industrial", "marketplace", "mvcframework"],
+                "Java / Spring": ["industrial", "pricing"],
+                ".NET Core / C#": ["industrial", "govtech"],
+                "Python": ["biotech", "pricing", "aiassistant", "devops"],
+                "GraphQL": ["healthcare", "retail", "marketplace", "aiassistant"],
+                "REST APIs": ["industrial", "healthcare", "retail", "fintech", "marketplace", "magento200", "aiassistant", "govtech"],
+
+                // Cloud & Infra
+                "AWS (EKS/Lambda/S3)": ["healthcare", "marketplace", "pricing", "magento200"],
+                "Azure": ["industrial", "govtech"],
+                "GCP": ["biotech"],
+                "Cloudflare Workers": ["retail", "aiassistant"],
+                "Docker": ["healthcare", "biotech", "devops", "marketplace", "fintech"],
+                "Kubernetes (EKS)": ["healthcare", "marketplace", "devops"],
+                "Terraform": ["healthcare", "devops", "marketplace"],
+
+                // DevOps & CI/CD
+                "Jenkins": ["industrial", "magento200", "healthcare", "devops"],
+                "GitHub Actions": ["retail", "aiassistant", "fintech", "marketplace"],
+                "GitLab CI": ["magento200", "industrial"],
+                "Grafana": ["devops", "fintech", "healthcare"],
+                "Prometheus": ["devops", "healthcare"],
+                "CloudFormation": ["healthcare", "marketplace"],
+                "Nginx / Varnish": ["magento200", "fintech", "retail", "healthcare"],
+
+                // eCommerce & ERP
+                "Magento 1 & 2": ["magento200", "healthcare", "industrial", "marketplace", "mvcframework"],
+                "Adobe Commerce": ["magento200", "healthcare", "industrial", "marketplace"],
+                "Headless Commerce": ["healthcare", "retail", "marketplace"],
+                "SAP ECC (IDoc/BAPI)": ["industrial"],
+                "EDI X12": ["industrial"],
+                "MS Dynamics": ["industrial"],
+                "Azure Logic Apps": ["industrial"],
+                "B2B / B2C": ["industrial", "magento200", "marketplace", "retail"],
+
+                // Data & AI
+                "Databricks": ["pricing"],
+                "Apache Spark": ["pricing"],
+                "Delta Lake": ["pricing"],
+                "OpenAI / Claude": ["aiassistant"],
+                "RAG Pipelines": ["aiassistant"],
+                "Vector DB": ["aiassistant"],
+                "LangChain": ["aiassistant"],
+
+                // Databases
+                "PostgreSQL": ["retail", "fintech", "marketplace", "aiassistant", "pricing"],
+                "MySQL": ["magento200", "healthcare", "industrial", "marketplace", "mvcframework"],
+                "Redis": ["magento200", "healthcare", "fintech", "marketplace", "retail"],
+                "MongoDB": ["biotech"],
+                "DynamoDB": ["healthcare"],
+                "Aurora": ["healthcare", "marketplace"]
+            };
+
+            // Build lookup: tech text → array of project objects
+            const techToProjectMap = {};
+            Object.keys(explicitTechMap).forEach(techText => {
+                techToProjectMap[techText] = explicitTechMap[techText]
+                    .map(id => projectById[id])
+                    .filter(Boolean);
+            });
+
+            const openTechModal = (tech) => {
+                modalTitle.textContent = tech.text;
+                modalCat.textContent = `${tech.cat} · ${'★'.repeat(tech.weight)}${'☆'.repeat(3 - tech.weight)}`;
+
+                const descMap = {
+                    'Cloud & Infra': "Scalable cloud infrastructure enabling high-availability enterprise deployments across AWS, Azure, and GCP.",
+                    'DevOps & CI/CD': "Automation, CI/CD pipelines, monitoring, and container orchestration for reliable delivery at scale.",
+                    'Backend & Languages': "Polyglot backend development powering business-critical APIs and services.",
+                    'eCommerce & ERP': "Enterprise-grade e-commerce platforms with deep ERP integration for order-to-cash workflows.",
+                    'Data & AI': "Advanced data engineering with Databricks/Spark and modern AI/LLM application development.",
+                    'Frontend & UI': "Responsive, high-performance user interfaces built for speed and accessibility.",
+                    'Databases': "Relational and NoSQL data stores optimized for high-throughput transactional workloads."
+                };
+                let desc = descMap[tech.cat] || `Core technology in the ${tech.cat} domain.`;
+                if (tech.text.includes("AWS")) desc = "Amazon Web Services: Primary cloud platform for EKS, Lambda, RDS, S3, and enterprise infrastructure.";
+                if (tech.text.includes("SAP")) desc = "Deep integration with SAP ECC (MM/SD modules) — IDoc, BAPI/RFC, and EDI X12 document exchange for enterprise order-to-cash.";
+                if (tech.text.includes("Magento")) desc = "200+ Magento stores delivered globally. Expert-level architecture across CE, EE, and Cloud editions.";
+                if (tech.text.includes("Databricks")) desc = "Built Spark ETL pipelines, Delta Lake analytics, and Unity Catalog governance for enterprise data platforms.";
+                if (tech.text.includes("RAG")) desc = "Built RAG pipelines with vector databases, embedding models, and conversational AI for production use.";
+                if (tech.text.includes("Kubernetes")) desc = "Production Kubernetes on EKS — multi-AZ deployments, HPA autoscaling, Helm charts, GitOps workflows.";
+                if (tech.text.includes("React")) desc = "Component-driven frontend architecture — React, hooks, context, and headless commerce frontends.";
+
+                modalDesc.textContent = desc;
+
+                modalProjects.innerHTML = '';
+                const matched = techToProjectMap[tech.text] || [];
+
+                if (matched.length > 0) {
+                    matched.forEach(p => {
+                        const tag = document.createElement('span');
+                        tag.className = 'project-tag';
+                        tag.innerHTML = `${p.name} <span class="pt-domain">${p.domain}</span>`;
+                        modalProjects.appendChild(tag);
+                    });
+                } else {
+                    // For any unmapped tech, scan projects for keyword matches as fallback
+                    const tWords = tech.text.toLowerCase().replace(/[()\/&]/g, ' ').split(/\s+/).filter(w => w.length > 2);
+                    projects.forEach(p => {
+                        const pool = [...p.details.flatMap(d => d.tools), ...(p.tags || []), p.domain].join(' ').toLowerCase();
+                        if (tWords.some(w => pool.includes(w))) {
+                            const tag = document.createElement('span');
+                            tag.className = 'project-tag';
+                            tag.innerHTML = `${p.name} <span class="pt-domain">${p.domain}</span>`;
+                            modalProjects.appendChild(tag);
+                        }
+                    });
+                    // If still nothing, show the category's typical industries
+                    if (modalProjects.children.length === 0) {
+                        const industryText = {
+                            'Cloud & Infra': "Enterprise eCommerce, Healthcare, FinTech, GovTech",
+                            'DevOps & CI/CD': "Industrial Supply Chain, Healthcare Compliance, High-Scale Retail",
+                            'Backend & Languages': "Enterprise Commerce, Genomics Research, Trading Systems",
+                            'eCommerce & ERP': "Fortune 500 B2B, HIPAA Platforms, Omnichannel Retail",
+                            'Frontend & UI': "Headless Commerce, Public Sector Dashboards, Education Analytics",
+                            'Data & AI': "Pricing Optimization, Education Insights, Conversational AI",
+                            'Databases': "High-Scale Retail, Healthcare, Real-Time Trading"
+                        };
+                        const tag = document.createElement('span');
+                        tag.className = 'project-tag';
+                        tag.innerHTML = `<span class="pt-domain">Used across: ${industryText[tech.cat] || 'Enterprise Systems'}</span>`;
+                        modalProjects.appendChild(tag);
+                    }
+                }
+
+                modalOverlay.classList.add('active');
+            };
+
+            // Toggle: Click background to group/scatter
+            container.parentElement.addEventListener('click', (e) => {
+                if (e.target.closest('.tech-card')) return;
+                if (e.target.closest('#tech-modal-overlay')) return;
+
+                isGrouped = !isGrouped;
+
+                if (isGrouped) {
+                    // --- ASSEMBLE into category groups ---
+                    getGroupedPositions();
+                    words.forEach(w => {
+                        if (w.floatTween) w.floatTween.pause();
+                        gsap.to(w.el, {
+                            x: w.groupPos.x,
+                            y: w.groupPos.y,
+                            z: 0,
+                            duration: 1.2,
+                            ease: "power3.inOut"
+                        });
+                    });
+                    showCategoryLabels();
+                } else {
+                    // --- SCATTER back to floating cloud ---
+                    removeCategoryLabels();
+                    words.forEach(w => {
+                        // New random scatter position
+                        w.cloudPos = {
+                            x: (Math.random() - 0.5) * window.innerWidth * 0.75,
+                            y: (Math.random() - 0.5) * window.innerHeight * 0.55,
+                            z: (Math.random() - 0.5) * 400
+                        };
+                        gsap.to(w.el, {
+                            x: w.cloudPos.x,
+                            y: w.cloudPos.y,
+                            z: w.cloudPos.z,
+                            duration: 1.2,
+                            ease: "power3.inOut",
+                            onComplete: () => {
+                                // Restart gentle floating
+                                w.floatTween = gsap.to(w.el, {
+                                    x: `+=${(Math.random() - 0.5) * 80}`,
+                                    y: `+=${(Math.random() - 0.5) * 80}`,
+                                    duration: 6 + Math.random() * 8,
+                                    repeat: -1,
+                                    yoyo: true,
+                                    ease: "sine.inOut"
+                                });
+                            }
+                        });
+                    });
+                }
+            });
+        };
+
+        // --- Project Galaxy Logic ---
+        const initProjectGalaxy = () => {
+            const container = document.getElementById('project-galaxy');
+            const orbitSystem = document.getElementById('orbit-system');
+            const orbitCenter = document.getElementById('orbit-center-text');
+            const backBtn = document.getElementById('galaxy-back-btn');
+            const title = document.getElementById('signature-work-title');
+            const desc = document.getElementById('signature-work-desc');
+
+            let isFocused = false;
+            let orbitRAF = null;
+            const cards = [];
+
+            // Place cards on 2 concentric elliptical rings so they never overlap
+            const n = projects.length;
+            const innerCount = Math.min(5, Math.floor(n / 2));
+            const outerCount = n - innerCount;
+
+            // Ellipse radii — use viewport-relative sizing
+            const vw = window.innerWidth;
+            const vh = window.innerHeight;
+            const innerRx = Math.min(vw * 0.22, 280);
+            const innerRy = Math.min(vh * 0.18, 180);
+            const outerRx = Math.min(vw * 0.40, 500);
+            const outerRy = Math.min(vh * 0.32, 300);
+
+            // Orbit speeds (radians per second) — slow, stately drift
+            const innerSpeed = 0.04;
+            const outerSpeed = -0.025; // opposite direction
+
+            // Build card data with orbital parameters
+            const cardData = [];
+
+            projects.forEach((proj, idx) => {
+                const card = document.createElement('div');
+                card.className = 'project-card';
+                card.style.setProperty('--card-accent', proj.color || '#D4AF37');
+                card.innerHTML = `
+                    <div class="pc-name">${proj.name}</div>
+                    <div class="pc-domain">${proj.domain}</div>
+                    <div class="pc-desc">${proj.desc}</div>
+                    <div class="pc-tags">${(proj.tags || []).map(t => `<span class="pc-tag">${t}</span>`).join('')}</div>
+                `;
+
+                const isInner = idx < innerCount;
+                const ringIdx = isInner ? idx : idx - innerCount;
+                const ringCount = isInner ? innerCount : outerCount;
+                const rx = isInner ? innerRx : outerRx;
+                const ry = isInner ? innerRy : outerRy;
+                const speed = isInner ? innerSpeed : outerSpeed;
+
+                // Evenly spaced starting angles
+                const baseAngle = (ringIdx / ringCount) * Math.PI * 2;
+
+                const data = { card, proj, rx, ry, speed, angle: baseAngle, isInner };
+                cardData.push(data);
+
+                // Start invisible
+                gsap.set(card, { opacity: 0, scale: 0.6 });
+
+                card.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    if (isFocused) return;
+                    enterOrbitMode(proj, card);
+                });
+
+                container.appendChild(card);
+                cards.push(card);
+            });
+
+            // Animate entrance then start orbiting
+            cardData.forEach((d, i) => {
+                const x = Math.cos(d.angle) * d.rx;
+                const y = Math.sin(d.angle) * d.ry;
+                gsap.to(d.card, {
+                    x, y, opacity: 1, scale: 1,
+                    duration: 1.2,
+                    delay: 0.1 + i * 0.07,
+                    ease: "power3.out"
+                });
+            });
+
+            // Continuous orbit loop
+            let lastTime = performance.now();
+            const orbitLoop = (now) => {
+                if (isFocused) { orbitRAF = requestAnimationFrame(orbitLoop); return; }
+                const dt = (now - lastTime) / 1000;
+                lastTime = now;
+
+                cardData.forEach(d => {
+                    d.angle += d.speed * dt;
+                    const x = Math.cos(d.angle) * d.rx;
+                    const y = Math.sin(d.angle) * d.ry;
+                    // Subtle depth: cards at back are slightly smaller/dimmer
+                    const depthScale = 0.85 + 0.15 * ((Math.sin(d.angle) + 1) / 2);
+                    const depthOpacity = 0.6 + 0.4 * ((Math.sin(d.angle) + 1) / 2);
+                    const zIdx = Math.round(depthScale * 100);
+
+                    gsap.set(d.card, {
+                        x, y,
+                        scale: depthScale,
+                        opacity: depthOpacity,
+                        zIndex: zIdx
+                    });
+                });
+
+                orbitRAF = requestAnimationFrame(orbitLoop);
+            };
+
+            // Start orbit after entrance animation completes
+            setTimeout(() => {
+                lastTime = performance.now();
+                orbitRAF = requestAnimationFrame(orbitLoop);
+            }, 1800);
+
+            const enterOrbitMode = (project, clickedCard) => {
+                isFocused = true;
+
+                // Hide Title/Desc lightly
+                gsap.to([title, desc], { opacity: 0.1, duration: 0.5 });
+
+                // Fade out other cards
+                cards.forEach(c => {
+                    if (c !== clickedCard) {
+                        gsap.to(c, { opacity: 0, scale: 0.5, duration: 0.4 });
+                    }
+                });
+
+                // Center the clicked card and then hide it
+                gsap.to(clickedCard, {
+                    x: 0, y: 0, scale: 1.3, opacity: 0, duration: 0.7, ease: "power2.inOut",
+                    onComplete: () => {
+                        clickedCard.style.display = 'none';
+                        showSystem(project);
+                    }
+                });
+            };
+
+            const showSystem = (project) => {
+                orbitSystem.classList.add('active');
+                orbitCenter.textContent = project.name;
+
+                // Create Rings
+                const rings = [
+                    { r: 200, speed: 40 },
+                    { r: 350, speed: 60 },
+                    { r: 500, speed: 80 }
+                ];
+
+                // Clear previous satellites
+                const oldSats = orbitSystem.querySelectorAll('.orbit-ring, .satellite');
+                oldSats.forEach(el => el.remove());
+
+                project.details.forEach((cat, idx) => {
+                    // Assign to a ring (wrap around)
+                    const ringIdx = idx % rings.length;
+                    const ringConfig = rings[ringIdx];
+
+                    // Place satellites on this ring
+                    const tools = cat.tools;
+
+                    const positions = [
+                        { angle: -90, label: "Functional" }, // Top
+                        { angle: 0, label: "Technology" },   // Right
+                        { angle: 90, label: "Cloud" },       // Bottom
+                        { angle: 180, label: "Quality" }     // Left
+                    ];
+
+                    if (idx < positions.length) {
+                        const pos = positions[idx];
+
+                        // Category Label (Orb)
+                        const catOrb = document.createElement('div');
+                        catOrb.className = 'satellite';
+                        catOrb.style.borderColor = 'var(--accent-gold)';
+                        catOrb.style.color = '#fff';
+                        catOrb.innerHTML = `<strong>${pos.label}</strong>`;
+
+                        const cx = Math.cos(pos.angle * Math.PI / 180) * 220; // Inner
+                        const cy = Math.sin(pos.angle * Math.PI / 180) * 220;
+
+                        catOrb.style.transform = `translate(${cx}px, ${cy}px)`;
+                        // Initial animation
+                        gsap.fromTo(catOrb, { opacity: 0, scale: 0 }, { opacity: 1, scale: 1, duration: 0.5, delay: 0.2 + (idx * 0.1) });
+                        orbitSystem.appendChild(catOrb);
+
+                        // Tools orbiting this category
+                        tools.forEach((t, tIdx) => {
+                            const tEl = document.createElement('div');
+                            tEl.className = 'satellite';
+                            tEl.textContent = t;
+
+                            // Offset from category center
+                            const tAngle = (tIdx / tools.length) * Math.PI * 2;
+                            const tRad = 90; // satellite spread
+
+                            const tx = cx + Math.cos(tAngle) * tRad;
+                            const ty = cy + Math.sin(tAngle) * tRad;
+
+                            tEl.style.transform = `translate(${tx}px, ${ty}px)`;
+                            gsap.fromTo(tEl, { opacity: 0, scale: 0 }, { opacity: 1, scale: 1, duration: 0.6, delay: 0.4 + (tIdx * 0.05) });
+                            orbitSystem.appendChild(tEl);
+                        });
+                    }
+                });
+
+                // Show Back Button
+                gsap.to(backBtn, { opacity: 1, pointerEvents: 'all', delay: 1 });
+            };
+
+            const resetGalaxy = () => {
+                isFocused = true; // Keep paused during restore
+                // Clear System
+                orbitSystem.classList.remove('active');
+                const orbitsEls = orbitSystem.querySelectorAll('.satellite');
+                orbitsEls.forEach(el => el.remove());
+                gsap.to(backBtn, { opacity: 0, pointerEvents: 'none' });
+
+                // Show title
+                gsap.to([title, desc], { opacity: 1, duration: 0.5 });
+
+                // Restore cards — animate back to their current orbital positions
+                cardData.forEach((d, idx) => {
+                    d.card.style.display = 'block';
+                    const x = Math.cos(d.angle) * d.rx;
+                    const y = Math.sin(d.angle) * d.ry;
+                    gsap.to(d.card, {
+                        x, y, opacity: 1, scale: 1,
+                        duration: 0.6,
+                        delay: idx * 0.03,
+                        ease: "power2.out"
+                    });
+                });
+
+                // Resume orbiting
+                setTimeout(() => { isFocused = false; }, 700);
+            };
+
+            backBtn.addEventListener('click', resetGalaxy);
+        };
+
+        // --- Testimonial Carousel Logic ---
+        const initTestimonials = () => {
+            const container = document.querySelector('.testimonial-container');
+            const progressBar = document.querySelector('.testimonial-progress-bar');
+
+            // Build DOM elements
+            testimonials.forEach((t, index) => {
+                const div = document.createElement('div');
+                div.className = `testimonial-item ${index === 0 ? 'active' : ''}`;
+                div.innerHTML = `
+                    <span class="quote-icon">“</span>
+                    <p class="quote-text">${t.quote}</p>
+                    <p class="quote-author">${t.role}</p>
+                    <p class="quote-role">${t.company}</p>
+                `;
+                container.insertBefore(div, progressBar.parentNode);
+            });
+
+            let currentIndex = 0;
+            const items = document.querySelectorAll('.testimonial-item');
+            const duration = 7; // seconds
+
+            const runCarousel = () => {
+                // Reset progress bar
+                gsap.fromTo(progressBar,
+                    { width: '0%' },
+                    { width: '100%', duration: duration, ease: 'none', onComplete: nextTestimonial }
+                );
+            };
+
+            const nextTestimonial = () => {
+                const current = items[currentIndex];
+                currentIndex = (currentIndex + 1) % items.length;
+                const next = items[currentIndex];
+
+                // Fade out current
+                gsap.to(current, {
+                    opacity: 0, y: -20, duration: 0.8, onComplete: () => {
+                        current.classList.remove('active');
+                    }
+                });
+
+                // Fade in next
+                next.classList.add('active');
+                gsap.fromTo(next,
+                    { opacity: 0, y: 20 },
+                    { opacity: 1, y: 0, duration: 0.8 }
+                );
+
+                runCarousel();
+            };
+
+            // Start ONLY when visible (handled in slide transition)
+            return { runCarousel };
+        };
+
+        // --- Web Audio Sound Engine ---
+        // Synthesizes cinematic sounds per slide — no external files needed
+        const initSoundEngine = () => {
+            let ctx = null;
+            let enabled = false;
+
+            const ensure = () => {
+                if (!ctx) ctx = new (window.AudioContext || window.webkitAudioContext)();
+                if (ctx.state === 'suspended') ctx.resume();
+                return ctx;
+            };
+
+            // Enable on first user interaction
+            const unlock = () => {
+                ensure();
+                enabled = true;
+                document.removeEventListener('click', unlock);
+                document.removeEventListener('keydown', unlock);
+            };
+            document.addEventListener('click', unlock);
+            document.addEventListener('keydown', unlock);
+
+            // --- Sound primitives ---
+
+            // Filtered noise burst (whoosh/swoosh)
+            const noise = (duration, startFreq, endFreq, vol = 0.15) => {
+                const c = ensure();
+                const len = c.sampleRate * duration;
+                const buf = c.createBuffer(1, len, c.sampleRate);
+                const data = buf.getChannelData(0);
+                for (let i = 0; i < len; i++) data[i] = (Math.random() * 2 - 1);
+
+                const src = c.createBufferSource();
+                src.buffer = buf;
+
+                const filter = c.createBiquadFilter();
+                filter.type = 'bandpass';
+                filter.Q.value = 1.5;
+                filter.frequency.setValueAtTime(startFreq, c.currentTime);
+                filter.frequency.exponentialRampToValueAtTime(endFreq, c.currentTime + duration);
+
+                const gain = c.createGain();
+                gain.gain.setValueAtTime(vol, c.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.001, c.currentTime + duration);
+
+                src.connect(filter).connect(gain).connect(c.destination);
+                src.start(); src.stop(c.currentTime + duration);
+            };
+
+            // Sub bass impact
+            const subHit = (freq = 50, duration = 0.6, vol = 0.25) => {
+                const c = ensure();
+                const osc = c.createOscillator();
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(freq, c.currentTime);
+                osc.frequency.exponentialRampToValueAtTime(20, c.currentTime + duration);
+
+                const gain = c.createGain();
+                gain.gain.setValueAtTime(vol, c.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.001, c.currentTime + duration);
+
+                osc.connect(gain).connect(c.destination);
+                osc.start(); osc.stop(c.currentTime + duration);
+            };
+
+            // Tonal shimmer (ethereal pad)
+            const shimmer = (freq, duration = 2.5, vol = 0.06) => {
+                const c = ensure();
+                const freqs = [freq, freq * 1.005, freq * 1.498, freq * 2.002];
+                freqs.forEach((f, i) => {
+                    const osc = c.createOscillator();
+                    osc.type = 'sine';
+                    osc.frequency.value = f;
+
+                    const gain = c.createGain();
+                    gain.gain.setValueAtTime(0, c.currentTime);
+                    gain.gain.linearRampToValueAtTime(vol, c.currentTime + 0.3);
+                    gain.gain.setValueAtTime(vol, c.currentTime + duration - 0.8);
+                    gain.gain.linearRampToValueAtTime(0, c.currentTime + duration);
+
+                    osc.connect(gain).connect(c.destination);
+                    osc.start(c.currentTime + i * 0.05);
+                    osc.stop(c.currentTime + duration);
+                });
+            };
+
+            // Rising tone (cinematic riser)
+            const riser = (startFreq, endFreq, duration = 1.2, vol = 0.08) => {
+                const c = ensure();
+                const osc = c.createOscillator();
+                osc.type = 'sawtooth';
+                osc.frequency.setValueAtTime(startFreq, c.currentTime);
+                osc.frequency.exponentialRampToValueAtTime(endFreq, c.currentTime + duration);
+
+                const filter = c.createBiquadFilter();
+                filter.type = 'lowpass';
+                filter.frequency.setValueAtTime(800, c.currentTime);
+                filter.frequency.exponentialRampToValueAtTime(3000, c.currentTime + duration);
+
+                const gain = c.createGain();
+                gain.gain.setValueAtTime(0, c.currentTime);
+                gain.gain.linearRampToValueAtTime(vol, c.currentTime + duration * 0.7);
+                gain.gain.linearRampToValueAtTime(0, c.currentTime + duration);
+
+                osc.connect(filter).connect(gain).connect(c.destination);
+                osc.start(); osc.stop(c.currentTime + duration);
+            };
+
+            // Gentle chime (bell-like)
+            const chime = (freq = 800, vol = 0.05) => {
+                const c = ensure();
+                const osc = c.createOscillator();
+                osc.type = 'sine';
+                osc.frequency.value = freq;
+
+                const gain = c.createGain();
+                gain.gain.setValueAtTime(vol, c.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.001, c.currentTime + 1.5);
+
+                osc.connect(gain).connect(c.destination);
+                osc.start(); osc.stop(c.currentTime + 1.5);
+            };
+
+            // Tech beep sequence
+            const techBeeps = (count = 3, baseFreq = 1200, vol = 0.04) => {
+                const c = ensure();
+                for (let i = 0; i < count; i++) {
+                    const osc = c.createOscillator();
+                    osc.type = 'square';
+                    osc.frequency.value = baseFreq + i * 200;
+
+                    const gain = c.createGain();
+                    const t = c.currentTime + i * 0.08;
+                    gain.gain.setValueAtTime(0, t);
+                    gain.gain.linearRampToValueAtTime(vol, t + 0.01);
+                    gain.gain.exponentialRampToValueAtTime(0.001, t + 0.12);
+
+                    osc.connect(gain).connect(c.destination);
+                    osc.start(t); osc.stop(t + 0.15);
+                }
+            };
+
+            // --- Per-slide sound compositions ---
+            const slideSounds = {
+                // Slide 0: The Hook — Grand cinematic entrance
+                0: () => {
+                    subHit(60, 0.8, 0.3);
+                    noise(0.6, 200, 4000, 0.12);
+                    shimmer(220, 3, 0.04);
+                    setTimeout(() => chime(660, 0.03), 300);
+                },
+                // Slide 1: Philosophy — Elegant, thoughtful
+                1: () => {
+                    shimmer(330, 3, 0.05);
+                    noise(0.4, 3000, 800, 0.04);
+                },
+                // Slide 2: The Scale/Numbers — Impact reveal
+                2: () => {
+                    subHit(45, 0.5, 0.2);
+                    techBeeps(4, 1000, 0.03);
+                    noise(0.3, 500, 3000, 0.08);
+                },
+                // Slide 3: Tech Ecosystem — Digital ambient
+                3: () => {
+                    noise(0.5, 1000, 5000, 0.06);
+                    techBeeps(5, 1400, 0.02);
+                    shimmer(440, 2.5, 0.03);
+                },
+                // Slide 4: Journey/Timeline — Warm ascending
+                4: () => {
+                    riser(150, 600, 1.5, 0.06);
+                    shimmer(262, 3, 0.04);
+                    setTimeout(() => chime(523, 0.03), 800);
+                },
+                // Slide 5: Signature Work/Galaxy — Space, exploratory
+                5: () => {
+                    noise(0.8, 100, 2000, 0.05);
+                    shimmer(196, 4, 0.04);
+                    subHit(35, 1.0, 0.1);
+                },
+                // Slide 6: Testimonials — Very gentle, ambient
+                6: () => {
+                    shimmer(392, 4, 0.03);
+                    setTimeout(() => chime(784, 0.02), 500);
+                },
+                // Slide 7: The End/CTA — Powerful, confident close
+                7: () => {
+                    subHit(55, 0.7, 0.25);
+                    riser(200, 800, 0.8, 0.07);
+                    noise(0.5, 300, 5000, 0.1);
+                    shimmer(330, 3, 0.05);
+                    setTimeout(() => {
+                        chime(660, 0.04);
+                        chime(880, 0.03);
+                    }, 400);
+                }
+            };
+
+            const playSlideSound = (slideIndex) => {
+                if (!enabled) return;
+                const fn = slideSounds[slideIndex];
+                if (fn) fn();
+            };
+
+            return { playSlideSound };
+        };
+
+        // --- Slideshow Logic ---
+        const initSlideshow = (threeObj, testimonialApi, soundEngine) => {
+            const slides = document.querySelectorAll('.slide');
+            const dots = document.querySelectorAll('.nav-dot');
+            const prevBtn = document.getElementById('prevBtn');
+            const nextBtn = document.getElementById('nextBtn');
+            let currentSlide = 0;
+            let isAnimating = false;
+            let testimonialStarted = false;
+
+            const goToSlide = (index) => {
+                if (isAnimating || index === currentSlide) return;
+                if (index < 0) index = slides.length - 1;
+                if (index >= slides.length) index = 0;
+
+                isAnimating = true;
+                const direction = index > currentSlide ? 1 : -1;
+
+                // Play the incoming slide's sound
+                soundEngine.playSlideSound(index);
+
+                // 2. Three.js Transition (Zoom or Rotate)
+                gsap.to(threeObj.particlesMesh.rotation, {
+                    y: threeObj.particlesMesh.rotation.y + (direction * 0.5),
+                    duration: 1.5,
+                    ease: "power2.inOut"
+                });
+
+                // 3. Slide DOM Transitions
+                const currentEl = slides[currentSlide];
+                const nextEl = slides[index];
+
+                // Out Animation
+                gsap.to(currentEl, {
+                    autoAlpha: 0,
+                    y: -50 * direction,
+                    duration: 0.8,
+                    ease: "power2.inOut"
+                });
+
+                // In Animation
+                gsap.fromTo(nextEl,
+                    { autoAlpha: 0, y: 50 * direction },
+                    {
+                        autoAlpha: 1, y: 0, duration: 0.8, ease: "power2.inOut", delay: 0.2, onComplete: () => {
+                            isAnimating = false;
+                            currentEl.classList.remove('active');
+                            nextEl.classList.add('active'); // Maintain active class
+
+                            // Check if we entered testimonials slide
+                            if (nextEl.id === 'slide-6' && !testimonialStarted) {
+                                testimonialStarted = true;
+                                testimonialApi.runCarousel();
+                            }
+                        }
+                    }
+                );
+
+                // Animate Slide Content specifically
+                const splitText = nextEl.querySelectorAll('h1:not(#tech-stream), h2:not(#eco-title), h3'); // Exclude tech stream elements
+                if (splitText.length) {
+                    gsap.fromTo(splitText,
+                        { y: 20, opacity: 0 },
+                        { y: 0, opacity: 1, duration: 1, stagger: 0.1, delay: 0.5, ease: "power2.out" }
+                    );
+                }
+
+                // Update Dots
+                dots.forEach(d => d.classList.remove('active'));
+                dots[index].classList.add('active');
+
+                currentSlide = index;
+            };
+
+            // Listeners
+            nextBtn.addEventListener('click', () => goToSlide(currentSlide + 1));
+            prevBtn.addEventListener('click', () => goToSlide(currentSlide - 1));
+
+            dots.forEach((dot, idx) => {
+                dot.addEventListener('click', () => goToSlide(idx));
+            });
+
+            // Keyboard
+            let lastEscTime = 0;
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'ArrowRight') goToSlide(currentSlide + 1);
+                if (e.key === 'ArrowLeft') goToSlide(currentSlide - 1);
+                if (e.key === 'Escape') {
+                    const now = Date.now();
+                    if (now - lastEscTime < 600) {
+                        // Double-escape: go back to main app
+                        window.history.back();
+                    } else {
+                        // Single escape: go to previous slide
+                        goToSlide(currentSlide - 1);
+                    }
+                    lastEscTime = now;
+                }
+            });
+
+            // Remove Loader
+            setTimeout(() => {
+                const loader = document.getElementById('loader');
+                gsap.to(loader, { opacity: 0, duration: 1, onComplete: () => loader.remove() });
+
+                // Initial Entry
+                slides[0].classList.add('active');
+                gsap.fromTo(slides[0].querySelector('h1'), { scale: 1.2, opacity: 0 }, { scale: 1, opacity: 1, duration: 1.5 });
+                // Play entrance sound after first click/interaction unlocks audio
+                setTimeout(() => soundEngine.playSlideSound(0), 500);
+            }, 1000);
+        };
+
+        // --- Init ---
+        const threeObj = initThreeJS();
+        initTechCloud(); // New Cloud/Globe Logic
+        initProjectGalaxy();
+        const testimonialApi = initTestimonials();
+        const soundEngine = initSoundEngine();
+        initSlideshow(threeObj, testimonialApi, soundEngine);
+
+    </script>
+</body>
+
+</html>

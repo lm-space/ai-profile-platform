@@ -1,0 +1,23 @@
+{
+    "name": "elamurugan-api",
+    "main": "src/index.ts",
+    "compatibility_date": "2024-12-01",
+    "d1_databases": [
+        {
+            "binding": "DB",
+            "database_name": "elamurugan-db",
+            "database_id": "7a1533d1-2d75-4436-9237-642b1c6f1a1f"
+        }
+    ],
+    "ai": {
+        "binding": "AI"
+    },
+    "observability": {
+        "enabled": true
+    },
+    "vars": {
+        "APP_URL": "https://elamurugan.pages.dev",
+        "ADMIN_EMAIL": "ruganemail@gmail.com",
+        "ELA_ADMIN_API_KEY": "BScr@nc4$0128"
+    }
+}

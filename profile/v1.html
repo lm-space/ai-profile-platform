@@ -1,0 +1,464 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Elamurugan Nallathambi — Tech Architect & Commerce Platform Specialist</title>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Outfit:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #08080c;
+    --surface: #0f0f16;
+    --surface2: #161622;
+    --surface3: #1c1c2e;
+    --border: #252540;
+    --border-hover: #3a3a5c;
+    --text: #ececf4;
+    --text-secondary: #a0a0be;
+    --text-dim: #6a6a88;
+    --accent: #64dfb4;
+    --accent-glow: rgba(100, 223, 180, 0.12);
+    --accent2: #7c8cf8;
+    --accent2-glow: rgba(124, 140, 248, 0.12);
+    --accent3: #e8a0bf;
+    --accent4: #f0c050;
+    --gradient-main: linear-gradient(135deg, #64dfb4, #7c8cf8);
+    --radius: 16px;
+    --radius-sm: 10px;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    font-family: 'Outfit', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.7;
+    overflow-x: hidden;
+    font-weight: 400;
+  }
+  ::selection { background: rgba(100, 223, 180, 0.25); color: #fff; }
+  body::after {
+    content: '';
+    position: fixed; inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.7' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.025'/%3E%3C/svg%3E");
+    pointer-events: none; z-index: 10000;
+  }
+  .glow { position: fixed; border-radius: 50%; filter: blur(160px); opacity: 0.06; pointer-events: none; z-index: 0; }
+  .glow-1 { width: 700px; height: 700px; top: -300px; right: -200px; background: #64dfb4; }
+  .glow-2 { width: 600px; height: 600px; bottom: -200px; left: -200px; background: #7c8cf8; }
+  .glow-3 { width: 500px; height: 500px; top: 40%; left: 40%; background: #e8a0bf; opacity: 0.03; }
+  .wrap { max-width: 1080px; margin: 0 auto; padding: 0 2rem; position: relative; z-index: 1; }
+
+  /* NAV */
+  nav {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+    background: rgba(8, 8, 12, 0.82);
+    backdrop-filter: blur(24px) saturate(1.2);
+    border-bottom: 1px solid rgba(37, 37, 64, 0.5);
+  }
+  nav .wrap { display: flex; align-items: center; justify-content: space-between; height: 60px; }
+  .logo { font-family: 'Instrument Serif', serif; font-size: 1.5rem; background: var(--gradient-main); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+  .nav-links { display: flex; gap: 1.8rem; }
+  .nav-links a { color: var(--text-dim); text-decoration: none; font-size: 0.78rem; font-weight: 500; letter-spacing: 0.06em; text-transform: uppercase; transition: color 0.3s; }
+  .nav-links a:hover { color: var(--accent); }
+
+  /* HERO */
+  .hero { padding: 9rem 0 5rem; }
+  .hero-inner { display: grid; grid-template-columns: 1.1fr 0.9fr; gap: 4rem; align-items: center; }
+  .hero-badge {
+    display: inline-flex; align-items: center; gap: 0.5rem;
+    padding: 0.35rem 1rem; background: var(--accent-glow);
+    border: 1px solid rgba(100, 223, 180, 0.18); border-radius: 100px;
+    font-size: 0.78rem; font-weight: 500; color: var(--accent); margin-bottom: 1.5rem;
+  }
+  .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--accent); animation: blink 2s infinite; }
+  @keyframes blink { 0%,100%{opacity:1}50%{opacity:.25} }
+  .hero h1 { font-family: 'Instrument Serif', serif; font-size: 3.6rem; font-weight: 400; line-height: 1.12; letter-spacing: -0.02em; margin-bottom: 1.5rem; }
+  .hero h1 em { font-style: italic; background: var(--gradient-main); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+  .hero-sub { font-size: 1.05rem; color: var(--text-secondary); line-height: 1.85; max-width: 520px; margin-bottom: 2.5rem; }
+  .hero-stats { display: flex; gap: 2.5rem; }
+  .hero-stat .num { font-family: 'Instrument Serif', serif; font-size: 2rem; background: var(--gradient-main); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+  .hero-stat .lbl { font-size: 0.72rem; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.08em; margin-top: 0.15rem; }
+
+  .hero-visual { display: flex; justify-content: center; }
+  .hero-terminal { width: 100%; max-width: 400px; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; }
+  .terminal-bar { display: flex; align-items: center; gap: 6px; padding: 0.8rem 1rem; background: var(--surface2); border-bottom: 1px solid var(--border); }
+  .terminal-dot { width: 10px; height: 10px; border-radius: 50%; }
+  .td-r { background: #ff5f57; } .td-y { background: #febc2e; } .td-g { background: #28c840; }
+  .terminal-title { font-family: 'JetBrains Mono', monospace; font-size: 0.7rem; color: var(--text-dim); margin-left: 0.5rem; }
+  .terminal-body { padding: 1.2rem 1rem; font-family: 'JetBrains Mono', monospace; font-size: 0.75rem; line-height: 2; }
+  .t-key { color: var(--accent2); } .t-val { color: var(--text-secondary); } .t-str { color: var(--accent); } .t-comment { color: var(--text-dim); font-style: italic; }
+
+  /* SECTIONS */
+  section { padding: 5rem 0; }
+  .sec-label { font-family: 'JetBrains Mono', monospace; font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.14em; color: var(--accent); margin-bottom: 0.75rem; display: flex; align-items: center; gap: 0.75rem; }
+  .sec-label::before { content: ''; width: 28px; height: 1px; background: var(--accent); }
+  .sec-title { font-family: 'Instrument Serif', serif; font-size: 2.3rem; font-weight: 400; letter-spacing: -0.01em; margin-bottom: 0.8rem; }
+  .sec-desc { color: var(--text-secondary); font-size: 0.95rem; max-width: 600px; margin-bottom: 3rem; }
+
+  /* PHILOSOPHY */
+  .phil-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.2rem; }
+  .phil-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 1.6rem; transition: all 0.4s cubic-bezier(.165,.84,.44,1); }
+  .phil-card:hover { border-color: var(--border-hover); transform: translateY(-3px); }
+  .phil-icon { font-size: 1.5rem; margin-bottom: 0.8rem; }
+  .phil-card h3 { font-size: 0.95rem; font-weight: 600; margin-bottom: 0.5rem; }
+  .phil-card p { color: var(--text-dim); font-size: 0.82rem; line-height: 1.7; }
+
+  /* EXPERIENCE */
+  .exp-list { display: flex; flex-direction: column; gap: 1.5rem; }
+  .exp-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 2rem 2.2rem; position: relative; overflow: hidden; transition: all 0.4s cubic-bezier(.165,.84,.44,1); }
+  .exp-card:hover { border-color: rgba(100,223,180,0.25); }
+  .exp-card::before { content: ''; position: absolute; top: 0; left: 0; bottom: 0; width: 3px; }
+  .exp-card:nth-child(1)::before { background: var(--gradient-main); }
+  .exp-card:nth-child(2)::before { background: linear-gradient(to bottom, var(--accent2), var(--accent3)); }
+  .exp-card:nth-child(3)::before { background: linear-gradient(to bottom, var(--accent3), var(--accent4)); }
+  .exp-card:nth-child(4)::before { background: linear-gradient(to bottom, var(--accent4), var(--accent)); }
+  .exp-card:nth-child(5)::before { background: linear-gradient(to bottom, var(--text-dim), var(--accent2)); }
+  .exp-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.8rem; flex-wrap: wrap; gap: 0.5rem; }
+  .exp-role { font-family: 'Instrument Serif', serif; font-size: 1.3rem; }
+  .exp-company { font-size: 0.85rem; color: var(--accent); font-weight: 500; margin-bottom: 0.3rem; }
+  .exp-date { font-family: 'JetBrains Mono', monospace; font-size: 0.72rem; color: var(--text-dim); padding: 0.25rem 0.7rem; background: var(--surface2); border-radius: 6px; border: 1px solid var(--border); white-space: nowrap; }
+  .exp-desc { color: var(--text-secondary); font-size: 0.88rem; line-height: 1.8; margin-bottom: 1.2rem; }
+  .exp-highlights { display: flex; flex-wrap: wrap; gap: 0.4rem; }
+  .exp-tag { font-family: 'JetBrains Mono', monospace; font-size: 0.68rem; padding: 0.2rem 0.65rem; background: var(--surface2); border: 1px solid var(--border); border-radius: 5px; color: var(--text-dim); transition: all 0.3s; }
+  .exp-tag:hover { color: var(--accent); border-color: rgba(100,223,180,0.3); background: var(--accent-glow); }
+
+  /* SKILLS */
+  .skills-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1.5rem; }
+  .skill-block { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 1.5rem; }
+  .skill-block h3 { font-family: 'JetBrains Mono', monospace; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 1rem; padding-bottom: 0.6rem; border-bottom: 1px solid var(--border); }
+  .sb-green h3 { color: var(--accent); } .sb-blue h3 { color: var(--accent2); } .sb-pink h3 { color: var(--accent3); } .sb-amber h3 { color: var(--accent4); }
+  .skill-item { display: flex; align-items: center; gap: 0.6rem; padding: 0.4rem 0; color: var(--text-secondary); font-size: 0.85rem; transition: color 0.3s; }
+  .skill-item:hover { color: var(--text); }
+  .sk-dot { width: 5px; height: 5px; border-radius: 50%; flex-shrink: 0; }
+  .sb-green .sk-dot { background: var(--accent); } .sb-blue .sk-dot { background: var(--accent2); } .sb-pink .sk-dot { background: var(--accent3); } .sb-amber .sk-dot { background: var(--accent4); }
+
+  /* PROJECTS */
+  .proj-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1.5rem; }
+  .proj-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 2rem; transition: all 0.4s cubic-bezier(.165,.84,.44,1); }
+  .proj-card:hover { border-color: rgba(124,140,248,0.3); transform: translateY(-3px); box-shadow: 0 16px 48px rgba(0,0,0,0.25); }
+  .proj-card.featured { grid-column: span 2; display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; align-items: center; }
+  .proj-icon { font-size: 1.8rem; margin-bottom: 1rem; }
+  .proj-card h3 { font-size: 1.1rem; font-weight: 600; margin-bottom: 0.5rem; }
+  .proj-card p { color: var(--text-secondary); font-size: 0.85rem; line-height: 1.75; margin-bottom: 1rem; }
+  .proj-tags { display: flex; flex-wrap: wrap; gap: 0.35rem; }
+  .proj-tags span { font-family: 'JetBrains Mono', monospace; font-size: 0.63rem; padding: 0.2rem 0.55rem; background: var(--accent2-glow); border: 1px solid rgba(124,140,248,0.18); color: var(--accent2); border-radius: 4px; }
+
+  /* CERTS */
+  .cert-row { display: flex; gap: 1.5rem; margin-top: 2rem; }
+  .cert-card { flex: 1; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 1.5rem; text-align: center; transition: all 0.3s; }
+  .cert-card:hover { border-color: var(--accent4); }
+  .cert-icon { font-size: 2rem; margin-bottom: 0.8rem; }
+  .cert-card h3 { font-size: 0.95rem; font-weight: 600; margin-bottom: 0.3rem; }
+  .cert-card p { font-size: 0.78rem; color: var(--text-dim); }
+
+  /* TESTIMONIALS */
+  .test-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1.5rem; margin-top: 2rem; }
+  .testimonial { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 2rem; position: relative; }
+  .testimonial::before { content: '\201C'; position: absolute; top: 0.8rem; left: 1.2rem; font-family: 'Instrument Serif', serif; font-size: 4rem; color: var(--accent); opacity: 0.15; line-height: 1; }
+  .testimonial blockquote { font-style: italic; color: var(--text-secondary); font-size: 0.92rem; line-height: 1.8; margin-bottom: 1.2rem; padding-left: 0.5rem; }
+  .testimonial cite { font-style: normal; font-size: 0.82rem; color: var(--text-dim); display: block; }
+  .testimonial cite strong { color: var(--text); font-weight: 600; }
+
+  /* EDUCATION */
+  .edu-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 1.5rem 2rem; display: flex; align-items: center; gap: 1.5rem; max-width: 500px; margin-top: 2rem; }
+  .edu-icon { font-size: 2rem; }
+  .edu-card h3 { font-size: 1rem; font-weight: 600; margin-bottom: 0.2rem; }
+  .edu-card p { font-size: 0.82rem; color: var(--text-dim); }
+
+  /* FOOTER */
+  footer { padding: 5rem 0 3rem; border-top: 1px solid var(--border); text-align: center; }
+  .footer-headline { font-family: 'Instrument Serif', serif; font-size: 2rem; margin-bottom: 0.8rem; background: var(--gradient-main); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+  .footer-sub { color: var(--text-dim); font-size: 0.88rem; margin-bottom: 2rem; max-width: 500px; margin-left: auto; margin-right: auto; }
+  .footer-copy { font-family: 'JetBrains Mono', monospace; font-size: 0.7rem; color: var(--text-dim); }
+
+  /* ANIMATIONS */
+  @keyframes rise { from{opacity:0;transform:translateY(30px)}to{opacity:1;transform:translateY(0)} }
+  .ani { animation: rise 0.7s ease-out both; }
+  .d1{animation-delay:.08s}.d2{animation-delay:.16s}.d3{animation-delay:.24s}.d4{animation-delay:.32s}.d5{animation-delay:.4s}
+
+  /* RESPONSIVE */
+  @media(max-width:900px){
+    .hero-inner{grid-template-columns:1fr}.hero h1{font-size:2.6rem}.hero-visual{order:-1}.hero-terminal{max-width:340px}
+    .phil-grid{grid-template-columns:1fr}.skills-grid{grid-template-columns:repeat(2,1fr)}
+    .proj-grid{grid-template-columns:1fr}.proj-card.featured{grid-column:span 1;grid-template-columns:1fr}
+    .test-grid{grid-template-columns:1fr}.cert-row{flex-direction:column}.nav-links{display:none}
+  }
+  @media(max-width:500px){.hero-stats{flex-wrap:wrap;gap:1.5rem}.skills-grid{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="glow glow-1"></div><div class="glow glow-2"></div><div class="glow glow-3"></div>
+
+<nav><div class="wrap">
+  <div class="logo">Ela</div>
+  <div class="nav-links">
+    <a href="#about">About</a><a href="#experience">Experience</a><a href="#skills">Skills</a><a href="#projects">Projects</a><a href="#contact">Contact</a>
+  </div>
+</div></nav>
+
+<!-- HERO -->
+<section class="hero" id="about"><div class="wrap"><div class="hero-inner">
+  <div class="ani">
+    <div class="hero-badge"><span class="dot"></span> Enterprise Tech Architect</div>
+    <h1>Elamurugan<br><em>Nallathambi</em></h1>
+    <p class="hero-sub">Architecting scalable commerce platforms with 14+ years of experience across enterprise eCommerce, cloud infrastructure, and full-stack development. Bridging business intent with technical execution — hands-on builder, team enabler, systems thinker.</p>
+    <div class="hero-stats">
+      <div class="hero-stat"><div class="num">14+</div><div class="lbl">Years Experience</div></div>
+      <div class="hero-stat"><div class="num">200+</div><div class="lbl">Stores Delivered</div></div>
+      <div class="hero-stat"><div class="num">2</div><div class="lbl">Adobe Certifications</div></div>
+    </div>
+  </div>
+  <div class="hero-visual ani d2">
+    <div class="hero-terminal">
+      <div class="terminal-bar"><span class="terminal-dot td-r"></span><span class="terminal-dot td-y"></span><span class="terminal-dot td-g"></span><span class="terminal-title">ela.config.ts</span></div>
+      <div class="terminal-body">
+        <span class="t-comment">// current focus</span><br>
+        <span class="t-key">role</span>: <span class="t-str">"Tech Architect"</span><br>
+        <span class="t-key">domain</span>: <span class="t-str">"Commerce Platforms"</span><br>
+        <span class="t-key">cloud</span>: <span class="t-str">"AWS · Docker · K8s"</span><br>
+        <span class="t-key">stack</span>: <span class="t-str">"Next.js · React · Node"</span><br>
+        <span class="t-key">data</span>: <span class="t-str">"PostgreSQL · Databricks"</span><br>
+        <span class="t-key">devops</span>: <span class="t-str">"CI/CD · IaC · GitOps"</span><br>
+        <span class="t-key">philosophy</span>: <span class="t-str">"Code first. Automate everything."</span><br>
+        <span class="t-comment">// polyglot — no tool boundaries</span>
+      </div>
+    </div>
+  </div>
+</div></div></section>
+
+<!-- PHILOSOPHY -->
+<section id="philosophy"><div class="wrap">
+  <div class="sec-label">Philosophy</div>
+  <h2 class="sec-title">How I Work</h2>
+  <p class="sec-desc">Principles forged over a decade of building systems that ship, scale, and survive production.</p>
+  <div class="phil-grid">
+    <div class="phil-card ani"><div class="phil-icon">⚡</div><h3>Code-First Development</h3><p>Diagram-backed, but always code-first. Architecture decisions validated through working prototypes, not slides.</p></div>
+    <div class="phil-card ani d1"><div class="phil-icon">🔄</div><h3>Automate Everything</h3><p>If it runs twice, automate it. CI/CD pipelines, infrastructure as code, testing frameworks — remove the human bottleneck.</p></div>
+    <div class="phil-card ani d2"><div class="phil-icon">🧭</div><h3>No-Boundary Learning</h3><p>Tools are enablers, not identities. PHP to Java to TypeScript to Python — the right tool for the right problem.</p></div>
+    <div class="phil-card ani d3"><div class="phil-icon">📐</div><h3>Translate Complexity</h3><p>Business intent into specs. Specs into diagrams. Diagrams into running code. Clarity at every layer.</p></div>
+    <div class="phil-card ani d4"><div class="phil-icon">🚀</div><h3>Performance Is a Feature</h3><p>Sub-2-second load times aren't optional. Server tuning, code optimization, caching strategies — baked in from day one.</p></div>
+    <div class="phil-card ani d5"><div class="phil-icon">🤝</div><h3>Lead by Doing</h3><p>Architecture reviews and code reviews happen at the same desk. Hands-on leadership that earns credibility through contribution.</p></div>
+  </div>
+</div></section>
+
+<!-- EXPERIENCE -->
+<section id="experience"><div class="wrap">
+  <div class="sec-label">Experience</div>
+  <h2 class="sec-title">Career Timeline</h2>
+  <p class="sec-desc">From building LAMP-stack web apps to architecting enterprise serverless platforms — 14 years of shipping at scale.</p>
+  <div class="exp-list">
+
+    <div class="exp-card ani">
+      <div class="exp-top">
+        <div><div class="exp-company">Global IT Services — Fortune 500 CPG Client</div><div class="exp-role">Senior Technical Manager / Tech Architect</div></div>
+        <span class="exp-date">Aug 2019 – Present</span>
+      </div>
+      <div class="exp-desc">Leading enterprise commerce and digital platform delivery for a major consumer packaged goods brand. Translating business specifications into system architecture, building CI/CD pipelines, and deploying containerized platforms on AWS. Managing cross-functional teams across onsite and offshore. Architecting serverless pricing engines, scenario analysis tools, loyalty promotion systems, and data sync pipelines within a monorepo architecture.</div>
+      <div class="exp-highlights">
+        <span class="exp-tag">Next.js 14</span><span class="exp-tag">SST v3</span><span class="exp-tag">TypeScript</span><span class="exp-tag">Drizzle ORM</span><span class="exp-tag">Aurora PostgreSQL</span><span class="exp-tag">Databricks</span><span class="exp-tag">AWS Lambda</span><span class="exp-tag">Docker</span><span class="exp-tag">Kubernetes</span><span class="exp-tag">Jenkins</span><span class="exp-tag">Turbo Monorepo</span><span class="exp-tag">Arquero</span>
+      </div>
+    </div>
+
+    <div class="exp-card ani d1">
+      <div class="exp-top">
+        <div><div class="exp-company">Digital Commerce Agency — Multi-Brand eCommerce</div><div class="exp-role">Architect / Full Stack Developer</div></div>
+        <span class="exp-date">Jan 2018 – Jul 2019</span>
+      </div>
+      <div class="exp-desc">Technical roadmap owner for multi-store eCommerce implementations. Led platform migrations and re-architecture, built custom PHP frameworks, developed MEAN-stack APIs, designed DevOps pipelines with Docker and cloud providers, and delivered UI-focused builds through Angular/React collaboration with UX teams.</div>
+      <div class="exp-highlights">
+        <span class="exp-tag">Magento 2</span><span class="exp-tag">PHP</span><span class="exp-tag">Laravel</span><span class="exp-tag">Node.js</span><span class="exp-tag">Angular</span><span class="exp-tag">React</span><span class="exp-tag">MongoDB</span><span class="exp-tag">Docker</span><span class="exp-tag">AWS</span>
+      </div>
+    </div>
+
+    <div class="exp-card ani d2">
+      <div class="exp-top">
+        <div><div class="exp-company">Independent — Global Client Portfolio</div><div class="exp-role">eCommerce Architect / Solution Developer</div></div>
+        <span class="exp-date">Feb 2011 – Nov 2017</span>
+      </div>
+      <div class="exp-desc">Self-employed solution architect supporting clients worldwide. Designed and launched 200+ commerce stores across community, enterprise, and professional editions. Integrated payment gateways, shipping providers, ERP systems, and CRM platforms. Achieved sub-2-second page loads through aggressive performance optimization. Built deployment pipelines across multiple cloud and managed hosting providers. Developed a custom Magento-like MVC framework.</div>
+      <div class="exp-highlights">
+        <span class="exp-tag">Magento 1.x CE/EE/PE</span><span class="exp-tag">Custom MVC</span><span class="exp-tag">MySQL</span><span class="exp-tag">PostgreSQL</span><span class="exp-tag">SAP Integration</span><span class="exp-tag">MS Dynamics</span><span class="exp-tag">ERP/CRM</span><span class="exp-tag">Performance Tuning</span>
+      </div>
+    </div>
+
+    <div class="exp-card ani d3">
+      <div class="exp-top">
+        <div><div class="exp-company">IT Services Company — UK/US eCommerce Clients</div><div class="exp-role">eCommerce Developer</div></div>
+        <span class="exp-date">Jul 2010 – Nov 2011</span>
+      </div>
+      <div class="exp-desc">Built dozens of commerce stores for US and UK clients. Developed custom extensions, integrated enterprise systems including SAP and Microsoft Dynamics, and handled payment/shipping service integrations. Managed client communication and technical proposal development.</div>
+      <div class="exp-highlights">
+        <span class="exp-tag">Magento</span><span class="exp-tag">PHP</span><span class="exp-tag">SAP</span><span class="exp-tag">Payment Gateways</span><span class="exp-tag">Shipping APIs</span>
+      </div>
+    </div>
+
+    <div class="exp-card ani d4">
+      <div class="exp-top">
+        <div><div class="exp-company">Web Development Studio</div><div class="exp-role">Web Application Developer</div></div>
+        <span class="exp-date">Sep 2008 – Sep 2010</span>
+      </div>
+      <div class="exp-desc">Built LAMP-based web applications, designed custom MVC frameworks, developed Zend-based applications, and created an early streaming platform using Flash ActionScript 3. Deployed and managed shared hosting production systems.</div>
+      <div class="exp-highlights">
+        <span class="exp-tag">PHP</span><span class="exp-tag">Zend</span><span class="exp-tag">MySQL</span><span class="exp-tag">LAMP</span><span class="exp-tag">Flash AS3</span><span class="exp-tag">Custom MVC</span>
+      </div>
+    </div>
+
+  </div>
+</div></section>
+
+<!-- SKILLS -->
+<section id="skills"><div class="wrap">
+  <div class="sec-label">Technical Expertise</div>
+  <h2 class="sec-title">Tools of the Trade</h2>
+  <p class="sec-desc">A polyglot engineer's toolkit — from backend platforms to cloud-native infrastructure.</p>
+  <div class="skills-grid">
+    <div class="skill-block sb-green">
+      <h3>Architecture & Leadership</h3>
+      <div class="skill-item"><span class="sk-dot"></span>Enterprise Commerce Architecture</div>
+      <div class="skill-item"><span class="sk-dot"></span>System Design & Infra Planning</div>
+      <div class="skill-item"><span class="sk-dot"></span>Cross-Functional Team Leadership</div>
+      <div class="skill-item"><span class="sk-dot"></span>Business Requirement Translation</div>
+      <div class="skill-item"><span class="sk-dot"></span>Agile & Waterfall Delivery</div>
+      <div class="skill-item"><span class="sk-dot"></span>Platform Standards Governance</div>
+    </div>
+    <div class="skill-block sb-blue">
+      <h3>Backend & Platforms</h3>
+      <div class="skill-item"><span class="sk-dot"></span>Magento 1.x / 2.x / Adobe Commerce</div>
+      <div class="skill-item"><span class="sk-dot"></span>PHP · Laravel · Zend · YII</div>
+      <div class="skill-item"><span class="sk-dot"></span>Node.js · Express · FastAPI</div>
+      <div class="skill-item"><span class="sk-dot"></span>Next.js 14 (App Router)</div>
+      <div class="skill-item"><span class="sk-dot"></span>Java · .NET MVC</div>
+      <div class="skill-item"><span class="sk-dot"></span>Drizzle ORM · Arquero</div>
+      <div class="skill-item"><span class="sk-dot"></span>Custom MVC Framework Design</div>
+    </div>
+    <div class="skill-block sb-pink">
+      <h3>Frontend</h3>
+      <div class="skill-item"><span class="sk-dot"></span>React · SvelteKit</div>
+      <div class="skill-item"><span class="sk-dot"></span>Angular</div>
+      <div class="skill-item"><span class="sk-dot"></span>TypeScript · JavaScript</div>
+      <div class="skill-item"><span class="sk-dot"></span>Tailwind CSS</div>
+      <div class="skill-item"><span class="sk-dot"></span>SEO-Optimized UI</div>
+      <div class="skill-item"><span class="sk-dot"></span>Mobile-First Responsive</div>
+    </div>
+    <div class="skill-block sb-amber">
+      <h3>DevOps & Cloud</h3>
+      <div class="skill-item"><span class="sk-dot"></span>AWS (Lambda, S3, SSO, RDS)</div>
+      <div class="skill-item"><span class="sk-dot"></span>SST v3 (Serverless Stack)</div>
+      <div class="skill-item"><span class="sk-dot"></span>Docker · Kubernetes</div>
+      <div class="skill-item"><span class="sk-dot"></span>Jenkins · GitLab CI · GitHub</div>
+      <div class="skill-item"><span class="sk-dot"></span>Infrastructure as Code</div>
+      <div class="skill-item"><span class="sk-dot"></span>Aurora PostgreSQL · Databricks</div>
+      <div class="skill-item"><span class="sk-dot"></span>pnpm + Turbo (Monorepo)</div>
+    </div>
+  </div>
+</div></section>
+
+<!-- PROJECTS -->
+<section id="projects"><div class="wrap">
+  <div class="sec-label">Signature Work</div>
+  <h2 class="sec-title">Notable Projects</h2>
+  <p class="sec-desc">Enterprise platforms, custom frameworks, and AI-powered development tools.</p>
+  <div class="proj-grid">
+
+    <div class="proj-card featured ani">
+      <div>
+        <div class="proj-icon">🏗️</div>
+        <h3>Enterprise Pricing & Loyalty Platform</h3>
+        <p>Architected a serverless platform for a Fortune 500 consumer brand — handling pricing engines, scenario analysis, walk-forward modeling, and multi-step loyalty promotion management with conflict detection and approval workflows. Built on a monorepo with strict layer separation across Shell, Platform, Data, and Application layers.</p>
+        <div class="proj-tags"><span>Next.js 14</span><span>SST v3</span><span>Drizzle</span><span>Aurora PostgreSQL</span><span>Databricks</span><span>pnpm + Turbo</span></div>
+      </div>
+      <div style="text-align:center">
+        <div style="font-size:5rem;opacity:.15">⚙️</div>
+        <div style="font-family:'JetBrains Mono',monospace;font-size:.72rem;color:var(--text-dim);margin-top:.5rem">Shell → Platform → Data → Application<br>Layer-based serverless architecture</div>
+      </div>
+    </div>
+
+    <div class="proj-card ani d1">
+      <div class="proj-icon">🧱</div>
+      <h3>Custom MVC Commerce Framework</h3>
+      <p>Built a Magento-inspired MVC framework from scratch — XML layout-based templating, CSS/JS minification, multi-theming, SEO-friendly URL rewrites, admin CMS, and a layout caching engine. Actively maintained since 2012.</p>
+      <div class="proj-tags"><span>PHP</span><span>Custom MVC</span><span>XML Layouts</span><span>SEO Engine</span><span>CMS</span></div>
+    </div>
+
+    <div class="proj-card ani d2">
+      <div class="proj-icon">🧠</div>
+      <h3>AI-Powered Development Tools</h3>
+      <p>Built local RAG document analysis systems using Ollama, custom MCP servers for database operations and project automation, and an AI-powered flow builder that generates interactive diagrams and working POC applications from natural language input.</p>
+      <div class="proj-tags"><span>Ollama</span><span>Claude API</span><span>FastAPI</span><span>SvelteKit</span><span>MCP</span><span>RAG</span></div>
+    </div>
+
+    <div class="proj-card ani d3">
+      <div class="proj-icon">📊</div>
+      <h3>High-Performance Data Grids</h3>
+      <p>Converted Excel-based business workflows into interactive web components — handling 100K+ rows with virtualized rendering, Arquero-powered data processing, and S3 data delivery within Lambda memory constraints.</p>
+      <div class="proj-tags"><span>Arquero</span><span>React</span><span>S3</span><span>Lambda</span><span>Virtualization</span></div>
+    </div>
+
+    <div class="proj-card ani d4">
+      <div class="proj-icon">🛒</div>
+      <h3>200+ Commerce Store Portfolio</h3>
+      <p>Designed and launched over 200 eCommerce stores across community, enterprise, and professional platforms. Integrated ERP, CRM, payment, and shipping systems while achieving sub-2-second page loads through aggressive optimization.</p>
+      <div class="proj-tags"><span>Magento</span><span>ERP</span><span>Payment APIs</span><span>Performance</span><span>&lt;2s Load</span></div>
+    </div>
+
+    <div class="proj-card ani d5">
+      <div class="proj-icon">🎮</div>
+      <h3>Educational Kids App</h3>
+      <p>Interactive quiz and spatial reasoning app for children — customizable math challenges, shape connector games, progress tracking with local persistence, and a modular plugin architecture designed for expansion.</p>
+      <div class="proj-tags"><span>Streamlit</span><span>Mobile-First</span><span>Gamification</span><span>Touch UI</span></div>
+    </div>
+
+  </div>
+</div></section>
+
+<!-- CERTIFICATIONS -->
+<section id="certs"><div class="wrap">
+  <div class="sec-label">Certifications</div>
+  <h2 class="sec-title">Credentials</h2>
+  <div class="cert-row">
+    <div class="cert-card"><div class="cert-icon">🏅</div><h3>Certified Magento Developer</h3><p>Adobe Commerce</p></div>
+    <div class="cert-card"><div class="cert-icon">🏆</div><h3>Certified Magento Developer Plus</h3><p>Adobe Commerce — Advanced</p></div>
+  </div>
+</div></section>
+
+<!-- TESTIMONIALS -->
+<section id="testimonials"><div class="wrap">
+  <div class="sec-label">What Colleagues Say</div>
+  <h2 class="sec-title">Voices of Collaboration</h2>
+  <div class="test-grid">
+    <div class="testimonial ani">
+      <blockquote>Any project involving Ela, I knew would be our best.</blockquote>
+      <cite><strong>Francisco Guzman</strong><br>International IT Consultant</cite>
+    </div>
+    <div class="testimonial ani d1">
+      <blockquote>Whenever anyone had any issue with bugs, architecture, environments, or implementation — we asked Ela.</blockquote>
+      <cite><strong>Nick Constantine</strong><br>CTO</cite>
+    </div>
+  </div>
+</div></section>
+
+<!-- EDUCATION -->
+<section id="education"><div class="wrap">
+  <div class="sec-label">Education</div>
+  <h2 class="sec-title">Foundation</h2>
+  <div class="edu-card">
+    <div class="edu-icon">🎓</div>
+    <div><h3>B.Tech — Information Technology</h3><p>2004 – 2008 · First Class</p></div>
+  </div>
+</div></section>
+
+<!-- FOOTER -->
+<footer id="contact"><div class="wrap">
+  <div class="footer-headline">Let's Build Something That Scales</div>
+  <div class="footer-sub">Architecting scalable commerce platforms. Bridging business intent with technical execution.</div>
+  <div class="footer-copy">© 2026 Elamurugan Nallathambi · Charlotte, NC</div>
+</div></footer>
+
+<script>
+const obs=new IntersectionObserver(e=>{e.forEach(e=>{e.isIntersecting&&(e.target.style.animationPlayState='running',obs.unobserve(e.target))})},{threshold:.08});
+document.querySelectorAll('.ani,.exp-card,.proj-card,.phil-card,.testimonial').forEach(e=>{e.style.animationPlayState='paused';obs.observe(e)});
+document.querySelectorAll('.nav-links a').forEach(a=>{a.addEventListener('click',e=>{e.preventDefault();const t=document.querySelector(a.getAttribute('href'));t&&t.scrollIntoView({behavior:'smooth',block:'start'})})});
+</script>
+</body>
+</html>

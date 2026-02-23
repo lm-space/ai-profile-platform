@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="Diagram Viewer" />
+    <meta name="theme-color" content="#0a0e1a" />
+    <title>Diagram Viewer</title>
+    <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Outfit:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #0a0e1a;
+            --accent: #00d4ff;
+            --accent-warm: #ff6b35;
+            --surface: #111827;
+            --surface-light: #1f2937;
+            --text: #e2e8f0;
+            --text-muted: #64748b;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html, body, #root {
+            width: 100%;
+            height: 100%;
+        }
+
+        body {
+            font-family: 'Outfit', sans-serif;
+            background: var(--primary);
+            color: var(--text);
+            overflow-x: hidden;
+        }
+
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--primary);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #334155;
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--accent);
+        }
+
+        .diagram-page {
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            padding: 2rem;
+            max-width: 1400px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        .diagram-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .diagram-header a {
+            color: var(--text-muted);
+            text-decoration: none;
+            font-size: 14px;
+            transition: color 0.2s;
+        }
+
+        .diagram-header a:hover {
+            color: var(--accent);
+        }
+
+        .diagram-info {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            flex: 1;
+        }
+
+        .diagram-info h1 {
+            margin: 0;
+            color: var(--text);
+            font-size: 28px;
+        }
+
+        .diagram-type-badge {
+            background: var(--accent);
+            color: var(--primary);
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+            font-size: 12px;
+            text-transform: uppercase;
+            font-weight: 600;
+        }
+
+        .diagram-controls {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+        }
+
+        .diagram-btn {
+            padding: 0.75rem 1rem;
+            background: var(--accent);
+            color: var(--primary);
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+
+        .diagram-btn:hover {
+            background: var(--accent-warm);
+            transform: translateY(-2px);
+        }
+
+        .diagram-container {
+            flex: 1;
+            background: var(--surface);
+            padding: 2rem;
+            border-radius: 8px;
+            overflow: auto;
+            border: 1px solid var(--surface-light);
+        }
+
+        .mermaid {
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+        }
+
+        .mermaid svg {
+            max-width: 100%;
+            height: auto;
+        }
+
+        #syntax-box {
+            background: var(--surface);
+            padding: 1rem;
+            border-radius: 4px;
+            margin-bottom: 2rem;
+            overflow-x: auto;
+            border: 1px solid var(--surface-light);
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 12px;
+            color: var(--text-muted);
+            max-height: 200px;
+            overflow-y: auto;
+            display: none;
+        }
+
+        .error-message {
+            background: rgba(255, 107, 53, 0.1);
+            border: 1px solid var(--accent-warm);
+            padding: 1rem;
+            border-radius: 4px;
+            color: var(--accent-warm);
+            margin-bottom: 2rem;
+        }
+
+        @media (max-width: 768px) {
+            .diagram-page {
+                padding: 1rem;
+            }
+
+            .diagram-header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .diagram-info {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .diagram-controls {
+                width: 100%;
+                flex-direction: column;
+            }
+
+            .diagram-btn {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+    <script type="module" src="/src/diagram.tsx"></script>
+</body>
+</html>

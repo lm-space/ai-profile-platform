@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mermaid Diagram Test</title>
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@10.9.5/dist/mermaid.min.js"></script>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            padding: 2rem;
+            max-width: 1200px;
+            margin: 0 auto;
+            background: #f5f5f5;
+        }
+        h1 {
+            color: #333;
+        }
+        .diagram-container {
+            background: white;
+            padding: 2rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            margin: 2rem 0;
+        }
+        .mermaid {
+            display: block;
+            background: #1a1a1a;
+            width: 100%;
+            min-height: auto;
+            padding: 1rem;
+            border-radius: 4px;
+        }
+        .mermaid svg {
+            width: 100% !important;
+            height: auto !important;
+            max-height: none;
+        }
+        /* Important: Allow mermaid to size naturally */
+        .mermaid g {
+            font-family: Arial, sans-serif;
+        }
+    </style>
+</head>
+<body>
+    <h1>🎨 Mermaid Diagram Test</h1>
+    <p>Testing Mermaid rendering with useMaxWidth: false</p>
+
+    <div class="diagram-container">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+            <h2 style="margin: 0;">Magento SAP Integration Flowchart</h2>
+            <button id="toggleSyntax" style="padding: 0.5rem 1rem; background: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer;">
+                📋 Show Syntax
+            </button>
+        </div>
+        <pre id="syntaxBox" style="display: none; background: #f5f5f5; padding: 1rem; border-radius: 4px; overflow-x: auto; font-size: 12px;"></pre>
+        <pre class="mermaid">
+flowchart TD
+    start["Start: Magento SAP Integration"]
+    process1["Step 1: Magento Configuration"]
+    process2["Step 2: SAP Connection Setup"]
+    process3["Step 3: Data Mapping"]
+    process4["Step 4: Testing and Debugging"]
+    decision{"Is Integration Successful?"}
+    end_success["End: Successful Integration"]
+    end_failure["End: Failed Integration"]
+    start --> process1
+    process1 --> process2
+    process2 --> process3
+    process3 --> decision
+    decision -->|Yes| end_success
+    decision -->|No| end_failure
+        </pre>
+    </div>
+
+    <script>
+        // Get the syntax from the mermaid div
+        const mermaidDiv = document.querySelector('.mermaid');
+        const syntaxText = `flowchart TD
+    start["Start: Magento SAP Integration"]
+    process1["Step 1: Magento Configuration"]
+    process2["Step 2: SAP Connection Setup"]
+    process3["Step 3: Data Mapping"]
+    process4["Step 4: Testing and Debugging"]
+    decision{"Is Integration Successful?"}
+    end_success["End: Successful Integration"]
+    end_failure["End: Failed Integration"]
+    start --> process1
+    process1 --> process2
+    process2 --> process3
+    process3 --> decision
+    decision -->|Yes| end_success
+    decision -->|No| end_failure`;
+
+        // Display syntax in the box
+        document.getElementById('syntaxBox').textContent = syntaxText;
+
+        // Toggle button handler
+        document.getElementById('toggleSyntax').addEventListener('click', function() {
+            const syntaxBox = document.getElementById('syntaxBox');
+            const isShown = syntaxBox.style.display !== 'none';
+            syntaxBox.style.display = isShown ? 'none' : 'block';
+            this.textContent = isShown ? '📋 Show Syntax' : '📋 Hide Syntax';
+        });
+
+        // Initialize Mermaid
+        mermaid.initialize({
+            startOnLoad: true,
+            theme: 'dark',
+            securityLevel: 'loose',
+            flowchart: {
+                useMaxWidth: false,
+                htmlLabels: false,
+                nodeSpacing: 60,
+                rankSpacing: 60,
+                curve: 'linear'
+            }
+        });
+
+        console.log('Mermaid initialized');
+        console.log('Syntax:', syntaxText);
+    </script>
+</body>
+</html>

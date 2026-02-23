@@ -1,0 +1,45 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import DiagramViewer from '../components/DiagramViewer.tsx';
+---
+
+<BaseLayout title="Diagram Test" currentPage="/diagram-test">
+  <div style="padding: 2rem; max-width: 1000px; margin: 0 auto;">
+    <h1>Mermaid Diagram Test</h1>
+    <p>Testing diagram rendering directly...</p>
+
+    <div style="margin: 2rem 0; border: 1px solid #ccc; padding: 1rem; background: #f5f5f5;">
+      <h2>Magento SAP Integration Flowchart</h2>
+      <DiagramViewer
+        client:load
+        syntax={`flowchart TD
+    start["Start: Magento SAP Integration"]
+    process1["Step 1: Magento Configuration"]
+    process2["Step 2: SAP Connection Setup"]
+    process3["Step 3: Data Mapping"]
+    process4["Step 4: Testing and Debugging"]
+    decision{"Is Integration Successful?"}
+    end_success["End: Successful Integration"]
+    end_failure["End: Failed Integration"]
+    start --> process1
+    process1 --> process2
+    process2 --> process3
+    process3 --> decision
+    decision -->|Yes| end_success
+    decision -->|No| end_failure`}
+        title="Magento SAP Integration"
+        type="flowchart"
+      />
+    </div>
+  </div>
+</BaseLayout>
+
+<style>
+  h1, h2 {
+    color: #333;
+  }
+  p {
+    color: #666;
+    line-height: 1.6;
+  }
+</style>

@@ -1,0 +1,135 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+
+// Get diagram data from URL parameters
+const { type = 'flowchart', syntax = '', title = 'Diagram' } = Astro.url.searchParams;
+const decodedSyntax = decodeURIComponent(syntax);
+---
+
+<BaseLayout title={title} currentPage="/diagram">
+  <div style="padding: 2rem; max-width: 1200px; margin: 0 auto;">
+    <div style="margin-bottom: 2rem;">
+      <a href="/" style="color: #7C7C7D; text-decoration: none; font-size: 14px;">← Back to Chat</a>
+    </div>
+
+    <div style="background: white; padding: 2rem; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+        <h1 style="margin: 0; color: #1E2128;">{title}</h1>
+        <span style="background: #003C59; color: white; padding: 0.5rem 1rem; border-radius: 4px; font-size: 12px; text-transform: uppercase;">
+          {type}
+        </span>
+      </div>
+
+      <div style="margin-bottom: 1.5rem;">
+        <button id="toggleSyntax" style="padding: 0.5rem 1rem; background: #003C59; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 14px;">
+          📋 Show Syntax
+        </button>
+      </div>
+
+      <pre id="syntaxBox" style="display: none; background: #f5f5f5; padding: 1rem; border-radius: 4px; overflow-x: auto; font-size: 12px; border: 1px solid #D3D3DC; margin-bottom: 1.5rem;"></pre>
+
+      <div style="background: #1a1a1a; padding: 1rem; border-radius: 4px; overflow-x: auto;">
+        <pre class="mermaid" set:html={decodedSyntax}></pre>
+      </div>
+
+      <div style="margin-top: 1.5rem; display: flex; gap: 1rem;">
+        <button id="copySyntax" style="padding: 0.75rem 1rem; background: #003C59; color: white; border: none; border-radius: 4px; cursor: pointer;">
+          📋 Copy Syntax
+        </button>
+        <button id="downloadSvg" style="padding: 0.75rem 1rem; background: #003C59; color: white; border: none; border-radius: 4px; cursor: pointer;">
+          ⬇️ Download SVG
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10.9.5/dist/mermaid.min.js"></script>
+  <script define:vars={{ decodedSyntax }}>
+    // Initialize Mermaid
+    mermaid.initialize({
+      startOnLoad: true,
+      theme: 'dark',
+      securityLevel: 'loose',
+      flowchart: {
+        useMaxWidth: false,
+        htmlLabels: false,
+        nodeSpacing: 60,
+        rankSpacing: 60,
+        curve: 'linear'
+      },
+      sequence: {
+        useMaxWidth: false,
+        htmlLabels: false
+      }
+    });
+
+    // Display syntax
+    document.getElementById('syntaxBox').textContent = decodedSyntax;
+
+    // Toggle syntax visibility
+    document.getElementById('toggleSyntax').addEventListener('click', function() {
+      const syntaxBox = document.getElementById('syntaxBox');
+      const isShown = syntaxBox.style.display !== 'none';
+      syntaxBox.style.display = isShown ? 'none' : 'block';
+      this.textContent = isShown ? '📋 Show Syntax' : '📋 Hide Syntax';
+    });
+
+    // Copy syntax
+    document.getElementById('copySyntax').addEventListener('click', async function() {
+      try {
+        await navigator.clipboard.writeText(decodedSyntax);
+        this.textContent = '✓ Copied!';
+        setTimeout(() => {
+          this.textContent = '📋 Copy Syntax';
+        }, 2000);
+      } catch (err) {
+        alert('Failed to copy');
+      }
+    });
+
+    // Download SVG
+    document.getElementById('downloadSvg').addEventListener('click', function() {
+      try {
+        const svgElement = document.querySelector('.mermaid svg');
+        if (!svgElement) {
+          alert('Diagram not rendered yet. Please wait.');
+          return;
+        }
+
+        const svgString = new XMLSerializer().serializeToString(svgElement);
+        const blob = new Blob([svgString], { type: 'image/svg+xml' });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = 'diagram.svg';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(url);
+      } catch (err) {
+        alert('Failed to download SVG');
+      }
+    });
+  </script>
+</BaseLayout>
+
+<style>
+  pre.mermaid {
+    display: block;
+    background: #1a1a1a;
+    width: 100%;
+    padding: 1rem;
+    border-radius: 4px;
+    overflow: visible;
+  }
+
+  pre.mermaid svg {
+    width: 100% !important;
+    height: auto !important;
+    max-height: none;
+  }
+
+  pre.mermaid g {
+    font-family: Arial, sans-serif;
+  }
+</style>
