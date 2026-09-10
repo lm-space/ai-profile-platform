@@ -62,8 +62,10 @@ export default function App() {
     if (!message.trim()) return;
 
     // Optimistic update - add user message immediately
-    const userMessageId = Math.random().toString();
-    const assistantMessageId = Math.random().toString();
+    // base36 without the leading "0." — these ids end up in DOM/CSS selectors
+    // (mermaid render targets), where a dot is a class separator.
+    const userMessageId = `msg_${Math.random().toString(36).slice(2)}`;
+    const assistantMessageId = `msg_${Math.random().toString(36).slice(2)}`;
     setMessages(prev => [
       ...prev,
       { id: userMessageId, role: 'user', content: message }
@@ -285,14 +287,14 @@ export default function App() {
           <div className="hero-inner">
             <div className="ani">
               <div className="hero-badge">
-                <span className="dot"></span>Enterprise Tech Architect
+                <span className="dot"></span>AI &amp; Agentic Systems · Enterprise Architect
               </div>
               <h1>Elamurugan<br /><em>Nallathambi</em></h1>
-              <p className="hero-sub">Enterprise Solution Architect with 18+ years architecting scalable commerce platforms. 200+ Magento stores delivered globally. Deep expertise in SAP/ERP integration, cloud architecture (AWS/Azure/Kubernetes), Databricks data engineering, and AI/LLM applications. Bridging business intent with technical execution — hands-on builder, team enabler, systems thinker.</p>
+              <p className="hero-sub">I build agentic AI systems on top of 18+ years of enterprise architecture — production MCP servers, multi-agent orchestration, RAG pipelines, evaluation harnesses and fine-tuned models. Before that: 200+ commerce stores, SAP/ERP integration, AWS/Azure/Kubernetes, Databricks. The models are new; the discipline that makes them survive production isn't. Forward-deployed by instinct — sit with the problem, build it, ship it, keep tightening.</p>
               <div className="hero-stats">
-                <div className="hero-stat"><div className="num">19+</div><div className="lbl">Years Experience</div></div>
-                <div className="hero-stat"><div className="num">200+</div><div className="lbl">Stores Delivered</div></div>
-                <div className="hero-stat"><div className="num">10+</div><div className="lbl">Teams Led</div></div>
+                <div className="hero-stat"><div className="num">18+</div><div className="lbl">Years Building</div></div>
+                <div className="hero-stat"><div className="num">31</div><div className="lbl">MCP Tools Shipped</div></div>
+                <div className="hero-stat"><div className="num">500K+</div><div className="lbl">Daily Users Served</div></div>
               </div>
             </div>
             <div className="hero-visual ani d2">
@@ -305,16 +307,16 @@ export default function App() {
                 </div>
                 <div className="terminal-body">
                   <span className="t-comment">// current focus</span><br />
-                  <span className="t-key">role</span>: <span className="t-str">"Tech Architect"</span><br />
-                  <span className="t-key">domain</span>: <span className="t-str">"Commerce Platforms"</span><br />
-                  <span className="t-key">cloud</span>: <span className="t-str">"AWS · Docker · K8s"</span><br />
-                  <span className="t-key">stack</span>: <span className="t-str">"Next.js · React · Node"</span><br />
-                  <span className="t-key">data</span>: <span className="t-str">"Databricks · Delta Lake · Spark"</span><br />
+                  <span className="t-key">role</span>: <span className="t-str">"AI Engineer · Solution Architect"</span><br />
+                  <span className="t-key">agents</span>: <span className="t-str">"MCP · A2A · AG-UI · multi-agent"</span><br />
+                  <span className="t-key">rag</span>: <span className="t-str">"tiered · hybrid · rerank"</span><br />
+                  <span className="t-key">memory</span>: <span className="t-str">"Vectorize · D1 · Durable Objects"</span><br />
+                  <span className="t-key">evals</span>: <span className="t-str">"tool-acc · refusal · fabrication"</span><br />
+                  <span className="t-key">tuning</span>: <span className="t-str">"Unsloth · Qwen2.5 · LoRA"</span><br />
                   <span className="t-key">erp</span>: <span className="t-str">"SAP ECC · IDoc · EDI X12"</span><br />
-                  <span className="t-key">ai</span>: <span className="t-str">"RAG · LLM · Vector DB"</span><br />
-                  <span className="t-key">devops</span>: <span className="t-str">"CI/CD · Terraform · GitOps"</span><br />
-                  <span className="t-key">philosophy</span>: <span className="t-str">"Code first. Automate everything."</span><br />
-                  <span className="t-comment">// polyglot — no tool boundaries</span>
+                  <span className="t-key">cloud</span>: <span className="t-str">"AWS · Azure · Workers · K8s"</span><br />
+                  <span className="t-key">philosophy</span>: <span className="t-str">"Code first. Measure everything."</span><br />
+                  <span className="t-comment">// the harness is the product</span>
                 </div>
               </div>
             </div>
@@ -394,7 +396,7 @@ export default function App() {
         <div className="wrap">
           <div className="sec-label">Technical Expertise</div>
           <h2 className="sec-title">Tools of the Trade</h2>
-          <p className="sec-desc">19+ years of hands-on expertise since 2004. Polyglot engineer fluent across full stack eCommerce, cloud-native architecture, and enterprise platforms.</p>
+          <p className="sec-desc">18+ years hands-on since 2008. Polyglot engineer across agentic AI, full-stack commerce, cloud-native architecture and enterprise integration — and still building POCs most weekends.</p>
           <div className="skills-grid">
             <div className="skill-block sb-green">
               <h3>eCommerce & Platforms</h3>
@@ -430,11 +432,19 @@ export default function App() {
             </div>
 
             <div className="skill-block sb-green">
-              <h3>Performance & Testing</h3>
-              <div className="skill-item"><span className="sk-dot"></span>Sub-2s Load Time Optimization</div>
+              <h3>Testing & Quality Engineering</h3>
+              <div className="skill-item"><span className="sk-dot"></span>Playwright E2E · Multi-Project Suites</div>
+              <div className="skill-item"><span className="sk-dot"></span>Tag-Driven Runs (@READONLY · @DB · @Integration)</div>
+              <div className="skill-item"><span className="sk-dot"></span>API + UI + DB-Parity in One Harness</div>
+              <div className="skill-item"><span className="sk-dot"></span>Headless/Headed Parity · Parallel Workers</div>
+              <div className="skill-item"><span className="sk-dot"></span>Cypress · Robot Framework · Visual Capture</div>
+            </div>
+            <div className="skill-block sb-blue">
+              <h3>Performance Engineering</h3>
+              <div className="skill-item"><span className="sk-dot"></span>Sub-2s Loads at 500K+ Daily Visitors</div>
               <div className="skill-item"><span className="sk-dot"></span>Server Tuning & Query Optimization</div>
-              <div className="skill-item"><span className="sk-dot"></span>Redis · Memcached · Varnish</div>
-              <div className="skill-item"><span className="sk-dot"></span>UI Automation (Cypress, Robot Framework)</div>
+              <div className="skill-item"><span className="sk-dot"></span>Redis · Memcached · Varnish · CDN</div>
+              <div className="skill-item"><span className="sk-dot"></span>GraphQL Batching · Persisted Queries</div>
               <div className="skill-item"><span className="sk-dot"></span>Load Testing (JMeter, K6, Gatling)</div>
             </div>
             <div className="skill-block sb-blue">
@@ -454,12 +464,36 @@ export default function App() {
               <div className="skill-item"><span className="sk-dot"></span>Payment: Worldpay · PayPal · Stripe</div>
             </div>
             <div className="skill-block sb-amber">
-              <h3>AI & LLM</h3>
-              <div className="skill-item"><span className="sk-dot"></span>OpenAI · Anthropic Claude APIs</div>
-              <div className="skill-item"><span className="sk-dot"></span>RAG Pipelines · Vector Databases</div>
-              <div className="skill-item"><span className="sk-dot"></span>LangChain · AI Agent Frameworks</div>
-              <div className="skill-item"><span className="sk-dot"></span>Document Chunking · Embeddings</div>
-              <div className="skill-item"><span className="sk-dot"></span>Conversational AI Applications</div>
+              <h3>AI & Agentic Systems</h3>
+              <div className="skill-item"><span className="sk-dot"></span>MCP Servers & Clients · A2A · AG-UI</div>
+              <div className="skill-item"><span className="sk-dot"></span>Multi-Agent Orchestration · Tool Use</div>
+              <div className="skill-item"><span className="sk-dot"></span>RAG 2.0 · Hybrid Retrieval · Memory Layers</div>
+              <div className="skill-item"><span className="sk-dot"></span>Claude · OpenAI · Gemini · Ollama</div>
+              <div className="skill-item"><span className="sk-dot"></span>Vectorize · Pinecone · ChromaDB</div>
+            </div>
+            <div className="skill-block sb-green">
+              <h3>AI Evaluation & Guardrails</h3>
+              <div className="skill-item"><span className="sk-dot"></span>Custom Eval Harnesses · Tool-Arg Accuracy</div>
+              <div className="skill-item"><span className="sk-dot"></span>Refusal Scoring · Fabrication Counts</div>
+              <div className="skill-item"><span className="sk-dot"></span>Fine-Tuning (Unsloth · Qwen2.5 · LoRA)</div>
+              <div className="skill-item"><span className="sk-dot"></span>Policy-in-Code Guardrails · Scoped Creds</div>
+              <div className="skill-item"><span className="sk-dot"></span>Tracing · AI Gateways · Cost Engineering</div>
+            </div>
+            <div className="skill-block sb-blue">
+              <h3>Forward Deployed Engineering</h3>
+              <div className="skill-item"><span className="sk-dot"></span>Customer-Side Delivery · Ship in Their Stack</div>
+              <div className="skill-item"><span className="sk-dot"></span>Discovery by Watching the Real Workflow</div>
+              <div className="skill-item"><span className="sk-dot"></span>Thin Vertical Slice → Deploy → Instrument</div>
+              <div className="skill-item"><span className="sk-dot"></span>Own the Whole Stack — No Handoff Gaps</div>
+              <div className="skill-item"><span className="sk-dot"></span>Docs & Runbooks as Part of the Build</div>
+            </div>
+            <div className="skill-block sb-pink">
+              <h3>R&D · POC Lab</h3>
+              <div className="skill-item"><span className="sk-dot"></span>40+ Self-Built POCs Across AI & Commerce</div>
+              <div className="skill-item"><span className="sk-dot"></span>Protocol Spelunking (MCP · A2A · UCP · AP2)</div>
+              <div className="skill-item"><span className="sk-dot"></span>Agent-Driven Browser Automation (Playwright MCP)</div>
+              <div className="skill-item"><span className="sk-dot"></span>Local Models · Voice · Vision · Edge Inference</div>
+              <div className="skill-item"><span className="sk-dot"></span>Prove It in Code Before It Goes in a Deck</div>
             </div>
           </div>
         </div>

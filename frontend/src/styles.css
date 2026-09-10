@@ -481,6 +481,101 @@ footer { padding: 5rem 0 3rem; border-top: 1px solid var(--border); text-align: 
   line-height: 1.8;
 }
 
+.message-text p:first-child { margin-top: 0; }
+.message-text p:last-child { margin-bottom: 0; }
+
+/* Full markdown support — lists, headings, tables, code blocks, quotes */
+.message-text ul,
+.message-text ol {
+  margin: 0.8rem 0;
+  padding-left: 1.4rem;
+  line-height: 1.75;
+}
+
+.message-text li { margin: 0.35rem 0; }
+.message-text li > p { margin: 0.2rem 0; }
+
+.message-text h1,
+.message-text h2,
+.message-text h3,
+.message-text h4 {
+  margin: 1.2rem 0 0.6rem;
+  line-height: 1.35;
+  color: var(--text);
+  font-weight: 600;
+}
+
+.message-text h1 { font-size: 1.25rem; }
+.message-text h2 { font-size: 1.15rem; }
+.message-text h3 { font-size: 1.05rem; }
+.message-text h4 { font-size: 0.98rem; }
+
+.message-text a {
+  color: var(--accent);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.message-text a:hover { color: var(--accent2); }
+
+.message-text blockquote {
+  margin: 0.9rem 0;
+  padding: 0.2rem 0 0.2rem 1rem;
+  border-left: 3px solid var(--border);
+  color: var(--text-dim, var(--text));
+  opacity: 0.9;
+}
+
+.message-text hr {
+  border: none;
+  border-top: 1px solid var(--border);
+  margin: 1.2rem 0;
+}
+
+/* Code blocks scroll on their own; the page must never scroll sideways */
+.message-text pre.code-block {
+  margin: 0.9rem 0;
+  padding: 0.9rem 1rem;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  overflow-x: auto;
+  max-width: 100%;
+}
+
+.message-text pre.code-block code {
+  background: none;
+  padding: 0;
+  color: var(--text);
+  font-size: 0.85rem;
+  line-height: 1.6;
+  white-space: pre;
+}
+
+.message-text .table-scroll {
+  overflow-x: auto;
+  max-width: 100%;
+  margin: 0.9rem 0;
+}
+
+.message-text table {
+  border-collapse: collapse;
+  font-size: 0.88rem;
+  min-width: 100%;
+}
+
+.message-text th,
+.message-text td {
+  border: 1px solid var(--border);
+  padding: 0.45rem 0.7rem;
+  text-align: left;
+}
+
+.message-text th {
+  background: var(--surface2);
+  font-weight: 600;
+}
+
 /* DIAGRAM COMPONENTS */
 .message-wrapper {
   display: flex;
@@ -495,11 +590,143 @@ footer { padding: 5rem 0 3rem; border-top: 1px solid var(--border); text-align: 
   flex-direction: row-reverse;
 }
 
-.message-diagram-link {
+/* Inline diagram (rendered in the transcript, not behind a link) */
+.message-diagram {
   margin-top: 1rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.message-diagram .diagram-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.7rem 0.9rem;
+  border-bottom: 1px solid var(--border);
+}
+
+.message-diagram .diagram-title {
+  margin: 0;
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.diagram-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.diagram-expand,
+.diagram-close {
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--text);
+  border-radius: 6px;
+  cursor: pointer;
+  padding: 0.2rem 0.5rem;
+  font-size: 0.85rem;
+  line-height: 1.4;
+  transition: all 0.2s;
+}
+
+.diagram-expand:hover,
+.diagram-close:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+/* Wide diagrams scroll inside their own box */
+.mermaid-svg {
+  padding: 1rem;
+  overflow-x: auto;
+  max-width: 100%;
+}
+
+/* Belt-and-braces: diagram types that still emit foreignObject labels must not
+   inherit the page's text wrapping, or the label box collapses to one
+   character wide and the node renders empty. */
+.mermaid-svg foreignObject > div {
+  white-space: nowrap;
+  width: max-content;
+  display: table-cell;
+  line-height: 1.3;
+}
+
+/* Mermaid emits an inline `max-width: <graph width>px` on the <svg>, and this
+   SVG lives inside flex containers. Combined, the element shrank to ~90px wide
+   regardless of the diagram — nodes were laid out correctly in SVG user units
+   (getBBox reported 141x42) but painted on top of each other.
+   Let the SVG take its natural size and let the wrapper scroll instead. */
+/* A 1px border on a dark node against a near-black page is effectively
+   invisible once the diagram is scaled down. Thicken the outlines. */
+.mermaid-svg svg .node rect,
+.mermaid-svg svg .node polygon,
+.mermaid-svg svg .node circle,
+.mermaid-svg svg .node path {
+  stroke-width: 1.8px;
+}
+
+.mermaid-svg svg {
+  max-width: none !important;
+  width: auto;
+  height: auto;
+  min-width: min-content;
+  flex: none;
+  display: block;
+  margin: 0 auto;
+}
+
+.diagram-loading {
+  padding: 1.2rem;
+  font-size: 0.85rem;
+  opacity: 0.7;
+}
+
+.diagram-fullscreen {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  background: rgba(0, 0, 0, 0.8);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+}
+
+.diagram-fullscreen-inner {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  width: min(1200px, 100%);
+  max-height: 90vh;
+  /* The diagram viewport inside the shadow root does its own scrolling and
+     drag-panning, so this wrapper must not add a second scroll layer. */
+  overflow: hidden;
   display: flex;
   flex-direction: column;
-  gap: 0.8rem;
+}
+
+.diagram-hint {
+  font-size: 0.7rem;
+  color: var(--text-dim);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.diagram-fullscreen-inner .diagram-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.8rem 1rem;
+  border-bottom: 1px solid var(--border);
+  position: sticky;
+  top: 0;
+  background: var(--surface);
 }
 
 .diagram-link-button {

@@ -241,6 +241,13 @@ function Sessions({ api }: { api: ReturnType<typeof useAdminApi> }) {
   );
 }
 
+// Display names for provider / api-key rows. Unknown values fall back to the raw id.
+const PROVIDER_LABELS: Record<string, string> = {
+  anthropic: '🧠 Anthropic (Claude)',
+  cloudflare: '☁️ Cloudflare AI',
+  openai: '🤖 OpenAI'
+};
+
 function Providers({ api }: { api: ReturnType<typeof useAdminApi> }) {
   const [providers, setProviders] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -276,7 +283,7 @@ function Providers({ api }: { api: ReturnType<typeof useAdminApi> }) {
           return (
             <div key={p.id} className={`provider-card ${p.is_active ? 'active' : ''}`}>
               <div className="provider-header">
-                <h3>{p.provider === 'cloudflare' ? '☁️ Cloudflare AI' : '🤖 OpenAI'}</h3>
+                <h3>{PROVIDER_LABELS[p.provider] || p.provider}</h3>
                 {p.is_active ? (
                   <span className="active-badge">Active</span>
                 ) : (
@@ -363,7 +370,7 @@ function ApiKeys({ api }: { api: ReturnType<typeof useAdminApi> }) {
         {keys.map((key: any) => (
           <div key={key.id} className="api-key-card">
             <div className="key-header">
-              <h3>{key.service === 'openai' ? '🤖 OpenAI API Key' : key.service}</h3>
+              <h3>{PROVIDER_LABELS[key.service] ? `${PROVIDER_LABELS[key.service]} Key` : key.service}</h3>
               <span className={key.is_enabled ? 'active-badge' : 'status-badge'}>{key.is_enabled ? 'Enabled' : 'Disabled'}</span>
             </div>
 

@@ -26,6 +26,46 @@ export interface SearchResult {
   tier?: number;
 }
 
+/** Max chunks pulled from the FTS pre-filter before vector re-ranking. */
+const FTS_CANDIDATE_LIMIT = 150;
+
+/**
+ * Cap on the no-FTS-match fallback scan. Cosine similarity runs in-process, so
+ * this bounds CPU per request. Raise it (or move to Vectorize) if the corpus
+ * grows past this — but never let it silently truncate a larger KB again.
+ */
+const FULL_SCAN_LIMIT = 1500;
+
+/** Words that match nearly every chunk and only add noise to an OR query. */
+const STOPWORDS = new Set([
+  'the', 'and', 'for', 'you', 'your', 'with', 'what', 'how', 'was', 'are', 'can',
+  'did', 'does', 'have', 'has', 'about', 'tell', 'this', 'that', 'from', 'into',
+  'why', 'when', 'who', '其', 'me', 'my', 'do', 'is', 'it', 'to', 'of', 'in', 'on',
+  'a', 'an', 'i', 'we', 'us', 'be', 'at', 'or', 'as', 'by', 'so', 'if'
+]);
+
+/**
+ * Turn a natural-language message into a valid FTS5 MATCH expression.
+ *
+ * Terms are individually quoted (which neutralises FTS operators like NEAR, *,
+ * ^ and parentheses that would otherwise be a syntax error or an injection
+ * vector) and joined with OR so partial matches still retrieve.
+ *
+ * Returns null when nothing useful survives, so the caller can skip FTS.
+ */
+export function buildFtsQuery(query: string): string | null {
+  const terms = query
+    .toLowerCase()
+    .replace(/[^a-z0-9\s-]/g, ' ')
+    .split(/\s+/)
+    .filter(t => t.length > 2 && !STOPWORDS.has(t))
+    .slice(0, 12); // keep the expression bounded
+
+  if (terms.length === 0) return null;
+
+  return [...new Set(terms)].map(t => `"${t}"`).join(' OR ');
+}
+
 /**
  * Score chunks by vector similarity and return top-K
  */
@@ -118,30 +158,45 @@ export async function searchKnowledgeBase(
   try {
     const queryEmbedding = await generateEmbedding(query, aiOrProvider);
 
-    const escapedQuery = query.replace(/"/g, '""');
-    const ftsResults = await db.prepare(`
-      SELECT id, document_id, content, heading, embedding
-      FROM kb_chunks
-      WHERE id IN (
-        SELECT rowid FROM kb_chunks_fts WHERE kb_chunks_fts MATCH "${escapedQuery}"
-      )
-      LIMIT 50
-    `).all();
+    let chunks: any[] = [];
 
-    let chunks: any[];
-
-    if (!ftsResults.results || ftsResults.results.length === 0) {
-      const allChunks = await db.prepare(`
-        SELECT id, document_id, content, heading, embedding
-        FROM kb_chunks
-        LIMIT 100
-      `).all();
-
-      if (!allChunks.results) return [];
-      chunks = allChunks.results;
-    } else {
-      chunks = ftsResults.results;
+    // FTS5 pre-filter. The query is built as an OR of quoted terms — the old
+    // version interpolated the raw message wrapped in quotes, which FTS5 reads
+    // as a *phrase* query, so any full sentence matched nothing and every
+    // search silently fell through to the fallback below.
+    // Tier-1 chunks are injected unconditionally by getTier1Context(), so they
+    // are excluded here. Leaving them in let them win the top-K on identity-ish
+    // queries and then get dropped by dedup, which starved tier-2/3 entirely.
+    const ftsQuery = buildFtsQuery(query);
+    if (ftsQuery) {
+      const ftsResults = await db.prepare(`
+        SELECT c.id, c.document_id, c.content, c.heading, c.embedding
+        FROM kb_chunks c
+        JOIN kb_documents d ON c.document_id = d.id
+        WHERE COALESCE(d.tier, 3) > 1
+          AND c.id IN (
+            SELECT rowid FROM kb_chunks_fts WHERE kb_chunks_fts MATCH ?
+          )
+        LIMIT ${FTS_CANDIDATE_LIMIT}
+      `).bind(ftsQuery).all();
+      chunks = ftsResults.results || [];
     }
+
+    // Fallback: vector-score the whole corpus rather than an arbitrary slice.
+    // The previous LIMIT 100 returned whichever 100 rows came first, so once
+    // the KB grew past that the relevant chunks were simply invisible.
+    if (chunks.length === 0) {
+      const allChunks = await db.prepare(`
+        SELECT c.id, c.document_id, c.content, c.heading, c.embedding
+        FROM kb_chunks c
+        JOIN kb_documents d ON c.document_id = d.id
+        WHERE COALESCE(d.tier, 3) > 1
+        LIMIT ${FULL_SCAN_LIMIT}
+      `).all();
+      chunks = allChunks.results || [];
+    }
+
+    if (chunks.length === 0) return [];
 
     const scoredChunks = scoreAndRankChunks(chunks, queryEmbedding, topK);
     return buildSearchResults(scoredChunks, db);

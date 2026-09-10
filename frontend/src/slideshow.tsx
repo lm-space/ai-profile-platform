@@ -414,6 +414,78 @@ const Slide7DataAI: React.FC = () => (
   </>
 );
 
+const Slide7bAgentic: React.FC = () => (
+  <>
+    <h2 style={{ marginBottom: '2rem' }}>Agentic AI Engineering</h2>
+    <div className="tech-showcase">
+      <div className="tech-section">
+        <h3>Production MCP Servers</h3>
+        <p style={{ marginBottom: '1rem', color: 'var(--text-secondary)' }}>
+          Live Cloudflare Worker exposing 31 Model Context Protocol tools — memory,
+          semantic search, ingestion, consolidation — on D1 + R2 + Vectorize, with
+          OAuth and per-session Durable Objects
+        </p>
+        <div className="tech-tags">
+          <span className="tech-tag">MCP</span>
+          <span className="tech-tag">Vectorize</span>
+          <span className="tech-tag">Durable Objects</span>
+          <span className="tech-tag">AI Gateway</span>
+        </div>
+      </div>
+      <div className="tech-section">
+        <h3>Multi-Agent Systems &amp; Harnesses</h3>
+        <p style={{ marginBottom: '1rem', color: 'var(--text-secondary)' }}>
+          Six agent protocols implemented end to end; ADK orchestrator delegating to
+          specialist agents over A2A with request-ID tracing across every hop
+        </p>
+        <div className="tech-tags">
+          <span className="tech-tag">A2A</span>
+          <span className="tech-tag">AG-UI</span>
+          <span className="tech-tag">Google ADK</span>
+          <span className="tech-tag">LangGraph</span>
+        </div>
+      </div>
+      <div className="tech-section">
+        <h3>Fine-Tuning &amp; Evaluation</h3>
+        <p style={{ marginBottom: '1rem', color: 'var(--text-secondary)' }}>
+          One-command dataset → train → evaluate → report pipeline. Custom harness
+          scoring tool-argument accuracy, refusal accuracy, and fabricated IDs as a
+          countable hallucination metric
+        </p>
+        <div className="tech-tags">
+          <span className="tech-tag">Unsloth</span>
+          <span className="tech-tag">Qwen2.5</span>
+          <span className="tech-tag">Eval Harness</span>
+          <span className="tech-tag">Guardrails</span>
+        </div>
+      </div>
+    </div>
+  </>
+);
+
+const AI_CAPABILITIES = [
+  'Harness Design', 'Context Engineering', 'Loop Engineering', 'Graph Engineering',
+  'MCP', 'Stateless MCP', 'Agentic AI', 'Multi-Agent Systems', 'RAG 2.0',
+  'Memory Layers', 'Tool Use', 'Function Calling', 'Vector DBs', 'Fine-Tuning',
+  'Evaluation Frameworks', 'Guardrails', 'Observability', 'Prompt Optimization',
+  'Synthetic Data', 'Distillation', 'AI Gateways', 'Cost Optimization'
+];
+
+const Slide7cCapabilities: React.FC = () => (
+  <>
+    <h2 style={{ marginBottom: '1rem' }}>The AI Engineering Surface</h2>
+    <p style={{ marginBottom: '2rem', color: 'var(--text-secondary)', maxWidth: '52rem' }}>
+      Not a reading list — each of these is something I've shipped, measured, or been
+      burned by. Ask the agent about any one of them.
+    </p>
+    <div className="tech-tags" style={{ maxWidth: '62rem', lineHeight: 2.2 }}>
+      {AI_CAPABILITIES.map(cap => (
+        <span className="tech-tag" key={cap}>{cap}</span>
+      ))}
+    </div>
+  </>
+);
+
 const Slide8Stack: React.FC = () => (
   <>
     <h2 style={{ marginBottom: '2rem' }}>The Tech Stack</h2>
@@ -562,11 +634,13 @@ const slides: Slide[] = [
   { id: 5, component: <Slide5Enterprise /> },
   { id: 6, component: <Slide6Healthcare /> },
   { id: 7, component: <Slide7DataAI /> },
-  { id: 8, component: <Slide8Stack /> },
-  { id: 9, component: <Slide9Framework /> },
-  { id: 10, component: <Slide10Credentials /> },
-  { id: 11, component: <Slide11Testimonials /> },
-  { id: 12, component: <Slide12Connect /> },
+  { id: 8, component: <Slide7bAgentic /> },
+  { id: 9, component: <Slide7cCapabilities /> },
+  { id: 10, component: <Slide8Stack /> },
+  { id: 11, component: <Slide9Framework /> },
+  { id: 12, component: <Slide10Credentials /> },
+  { id: 13, component: <Slide11Testimonials /> },
+  { id: 14, component: <Slide12Connect /> },
 ];
 
 // Mount app

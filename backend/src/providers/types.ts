@@ -12,6 +12,14 @@ export interface ChatRequest {
   messages: ChatMessage[];
   temperature?: number;
   max_tokens?: number;
+  /** Offer the render_diagram tool so the model can emit a diagram in the same turn. */
+  diagramTool?: boolean;
+}
+
+export interface InlineDiagram {
+  type: string;
+  title: string;
+  syntax: string;
 }
 
 export interface ChatResponse {
@@ -20,6 +28,8 @@ export interface ChatResponse {
   provider: string;
   tokens_in?: number;
   tokens_out?: number;
+  /** Present only when the provider supports the diagram tool and the model called it. */
+  diagram?: InlineDiagram;
 }
 
 export interface EmbeddingRequest {
@@ -52,6 +62,13 @@ export interface ProviderConfig {
  */
 export interface AIProvider {
   readonly name: string;
+
+  /**
+   * True when the provider can return a diagram inline via a tool call.
+   * When set, the chat pipeline skips the keyword detector and the separate
+   * diagram-generation round trip.
+   */
+  readonly supportsDiagramTool?: boolean;
 
   /** Generate a chat completion */
   chat(request: ChatRequest): Promise<ChatResponse>;

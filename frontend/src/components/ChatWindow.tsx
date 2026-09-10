@@ -25,11 +25,19 @@ interface ChatWindowProps {
 }
 
 // Constant array — defined outside component to avoid re-creation on every render
+// Mix of the original openers and AI-depth prompts. The architecture ones also
+// exercise the diagram tool, which is worth showing off early.
 const SUGGESTED_QUESTIONS = [
   "Tell me about your background",
+  "What have you built with MCP?",
+  "How do you evaluate agents and catch hallucination?",
+  "Show me a multi-agent architecture you've built",
   "What's your expertise in cloud architecture?",
   "How do you approach system design?",
-  "What's your experience with Magento?"
+  "How do you test with Playwright?",
+  "How do you keep AI systems cheap enough to ship?",
+  "What's your experience with Magento?",
+  "Which AI coding tools do you actually use?"
 ];
 
 export function ChatWindow({
@@ -65,7 +73,7 @@ export function ChatWindow({
             onClick={onToggleExpand}
             title={isExpanded ? 'Collapse to normal view' : 'Expand to full width'}
           >
-            {isExpanded ? '⇐' : '⇒'}
+            {isExpanded ? '⇒' : '⇐'}
           </button>
         </div>
       )}

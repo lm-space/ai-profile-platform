@@ -17,7 +17,10 @@ interface Env {
     APP_URL: string;
     ADMIN_EMAIL: string;
     OPENAI_API_KEY?: string;
+    ANTHROPIC_API_KEY?: string;
     ELA_ADMIN_API_KEY?: string;
+    /** Secret path segment for the /api/switch/:token/:provider demo URLs. */
+    PROVIDER_SWITCH_TOKEN?: string;
 }
 
 const app = new Hono<{ Bindings: Env }>();
@@ -83,16 +86,12 @@ INTERVIEW RESPONSE STYLE:
 - Reference projects by DOMAIN (e.g. "Fortune 500 packaging platform", "education data analytics", "health & wellness eCommerce")
 - Sound like you're explaining to someone interested in your expertise
 
-DIAGRAM CAPABILITY (CRITICAL — READ CAREFULLY):
-- A SEPARATE automated system generates Mermaid diagrams alongside your responses — you do NOT generate diagrams yourself
-- NEVER include Mermaid syntax, code blocks, or diagram code in your response text
-- NEVER write "flowchart TD", "graph TB", "sequenceDiagram", "classDiagram", or ANY Mermaid markup
-- NEVER say "I can't create diagrams" or "I can't generate visuals" — the system handles it
-- NEVER say "here is a diagram" or "I will generate a flow diagram" — just describe the flow naturally in plain text
-- Your job: describe architecture, flows, and processes in PLAIN TEXT with clear component names, steps, and data flows
-- The automated diagram system will read your text + the user's question and generate a visual Mermaid diagram that appears as a clickable link below your response
-- DO NOT attempt to be helpful by including diagram syntax — it will appear as ugly raw code in the chat
-- Simply explain the technical concepts naturally in paragraphs, and the visual diagram link will appear automatically
+DIAGRAMS:
+- You have a render_diagram tool. Use it when a visual genuinely helps — an architecture, a multi-step flow, a sequence of calls between systems, or a data model.
+- Skip it for career questions, single-concept explanations, and anything that reads fine as prose.
+- Diagram source goes in the tool call, never in your text. Write the explanation in plain paragraphs; the diagram renders below it.
+
+FORMATTING: Markdown renders in the chat — use **bold**, lists, and fenced code blocks where they help. Keep it light; prose is the default.
 
 TONE: Expert being interviewed, practical, authentic, conversational, direct`;
 
@@ -125,6 +124,57 @@ function stripMermaidFromResponse(text: string): string {
     cleaned = cleaned.replace(/\n{3,}/g, '\n\n');
 
     return cleaned.trim();
+}
+
+/**
+ * Turn a raw diagram (from the model's tool call, or from the legacy generator)
+ * into something safe to render: validate the Mermaid, apply the syntax fixer,
+ * and drop it if it's clearly unusable.
+ */
+function finalizeDiagram(raw: { type: string; title: string; syntax: string } | undefined | null) {
+    if (!raw?.syntax) return null;
+
+    const validation = validateMermaidSyntax(raw.syntax, raw.type as any);
+    const syntax = validation.corrected || raw.syntax;
+
+    if (validation.isValid || validation.corrected) {
+        return { type: raw.type, syntax, title: raw.title || 'Diagram' };
+    }
+    // Best effort: a multi-line diagram usually still renders even if our
+    // heuristic validator is unhappy. Mermaid itself is the real judge.
+    if (syntax.length > 10 && syntax.includes('\n')) {
+        return { type: raw.type, syntax, title: raw.title || 'Diagram' };
+    }
+    return null;
+}
+
+/**
+ * Legacy diagram path: keyword-detect, then a second LLM call to write Mermaid.
+ * Only used for providers that can't emit a diagram inline (Workers AI, OpenAI).
+ */
+async function generateDiagramLegacy(
+    message: string,
+    ctx: any,
+    logger: RequestLogger
+) {
+    const detection = detectDiagramRequest(message);
+    logger.log('diagram_detection_legacy', {
+        needsDiagram: detection.needsDiagram, type: detection.type,
+        confidence: detection.confidence, keywords: detection.keywords
+    });
+    if (!detection.needsDiagram || !detection.type) return null;
+
+    const result = await generateDiagramWithProvider({
+        type: detection.type,
+        topic: detection.topic || message,
+        userMessage: message,
+        ragContext: ctx.ragContext || undefined
+    }, ctx.diagramProvider,
+        ctx.providerConfig.config.diagram_temperature ?? 0.3,
+        ctx.providerConfig.config.diagram_max_tokens || 2000);
+
+    if (!result.extractedSuccessfully && result.syntax.length <= 10) return null;
+    return finalizeDiagram({ type: result.type, title: result.title, syntax: result.syntax });
 }
 
 // Helper function to get or create conversation
@@ -451,7 +501,8 @@ app.post('/api/chat', async (c) => {
                 ...ctx.chatMessages
             ],
             temperature: ctx.providerConfig.config.chat_temperature,
-            max_tokens: ctx.providerConfig.config.chat_max_tokens
+            max_tokens: ctx.providerConfig.config.chat_max_tokens,
+            diagramTool: !!ctx.chatProvider.supportsDiagramTool
         });
 
         logger.log('ai_response', {
@@ -476,44 +527,23 @@ app.post('/api/chat', async (c) => {
             'INSERT INTO messages (id, conversation_id, role, content, created_at) VALUES (?, ?, ?, ?, ?)'
         ).bind(assistantMessageId, ctx.conversationId, 'assistant', finalMessage, new Date().toISOString()).run();
 
-        // Diagram generation — runs SEPARATELY from AI text response
-        let diagram = null;
+        // Diagram: inline from the model's tool call when supported,
+        // otherwise fall back to the keyword detector + second LLM call.
+        const diagramStart = Date.now();
+        let diagram: { type: string; syntax: string; title: string } | null = null;
         try {
-            const detectionResult = detectDiagramRequest(message);
-            console.log('[DIAGRAM] Detection:', JSON.stringify({ needsDiagram: detectionResult.needsDiagram, type: detectionResult.type, confidence: detectionResult.confidence, keywords: detectionResult.keywords }));
-            if (detectionResult.needsDiagram && detectionResult.type) {
-                logger.log('diagram_detected', { type: detectionResult.type, confidence: detectionResult.confidence });
-                const diagramStart = Date.now();
-                const diagramMaxTokens = ctx.providerConfig.config.diagram_max_tokens || 2000;
-                const diagramTemp = ctx.providerConfig.config.diagram_temperature ?? 0.3;
-                console.log('[DIAGRAM] Generating:', detectionResult.type, 'maxTokens:', diagramMaxTokens);
-                const timeoutPromise = new Promise((_, reject) =>
-                    setTimeout(() => reject(new Error('Diagram timeout after 30s')), 30000)
-                );
-                const diagramPromise = generateDiagramWithProvider({
-                    type: detectionResult.type,
-                    topic: detectionResult.topic || message,
-                    userMessage: message,
-                    ragContext: ctx.ragContext || undefined
-                }, ctx.diagramProvider, diagramTemp, diagramMaxTokens);
+            diagram = ctx.chatProvider.supportsDiagramTool
+                ? finalizeDiagram(chatResponse.diagram)
+                : await generateDiagramLegacy(message, ctx, logger);
 
-                const diagramResult = await Promise.race([diagramPromise, timeoutPromise]) as any;
-                console.log('[DIAGRAM] Generated:', { extracted: diagramResult.extractedSuccessfully, syntaxLen: diagramResult.syntax.length });
-                const validation = validateMermaidSyntax(diagramResult.syntax, detectionResult.type);
-                const finalSyntax = validation.corrected || diagramResult.syntax;
-                console.log('[DIAGRAM] Validated:', { valid: validation.isValid, corrected: !!validation.corrected, errors: validation.errors });
-                if (diagramResult.extractedSuccessfully && (validation.isValid || validation.corrected)) {
-                    const diagramId = generateId();
-                    c.executionCtx.waitUntil(c.env.DB.prepare(
-                        'INSERT INTO diagrams_generated (id, conversation_id, message_id, diagram_type, diagram_syntax, diagram_title, topic, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?)'
-                    ).bind(diagramId, ctx.conversationId, assistantMessageId, diagramResult.type, finalSyntax, diagramResult.title, detectionResult.topic, new Date().toISOString()).run());
-                    diagram = { type: diagramResult.type, syntax: finalSyntax, title: diagramResult.title };
-                    logger.log('diagram_generated', { type: diagramResult.type, title: diagramResult.title }, { duration_ms: Date.now() - diagramStart });
-                } else if (finalSyntax.length > 10 && finalSyntax.includes('\n')) {
-                    // Best-effort: send diagram even if validation has issues
-                    console.log('[DIAGRAM] Sending best-effort diagram despite validation issues');
-                    diagram = { type: diagramResult.type, syntax: finalSyntax, title: diagramResult.title || 'Diagram' };
-                }
+            if (diagram) {
+                c.executionCtx.waitUntil(c.env.DB.prepare(
+                    'INSERT INTO diagrams_generated (id, conversation_id, message_id, diagram_type, diagram_syntax, diagram_title, topic, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?)'
+                ).bind(generateId(), ctx.conversationId, assistantMessageId, diagram.type, diagram.syntax, diagram.title, message.substring(0, 100), new Date().toISOString()).run());
+                logger.log('diagram_generated', {
+                    type: diagram.type, title: diagram.title,
+                    source: ctx.chatProvider.supportsDiagramTool ? 'tool_call' : 'legacy_detector'
+                }, { duration_ms: Date.now() - diagramStart });
             }
         } catch (error: any) {
             console.error('[DIAGRAM] ERROR:', error?.message || error);
@@ -580,10 +610,13 @@ app.post('/api/chat/stream', async (c) => {
                     ...ctx.chatMessages
                 ],
                 temperature: ctx.providerConfig.config.chat_temperature,
-                max_tokens: ctx.providerConfig.config.chat_max_tokens
+                max_tokens: ctx.providerConfig.config.chat_max_tokens,
+                diagramTool: !!ctx.chatProvider.supportsDiagramTool
             });
 
             let fullText = '';
+            // Set when the provider streams a diagram back from its tool call.
+            let toolDiagram: any = null;
             const reader = aiStream.getReader();
             const decoder = new TextDecoder();
 
@@ -603,40 +636,22 @@ app.post('/api/chat/stream', async (c) => {
                             finalMessage += '\n\n**Thanks for reaching out!** Ela will get in touch with you shortly.';
                         }
 
-                        // Check for diagram — runs SEPARATELY from AI text response
-                        // Even if the AI says "I can't create diagrams", this pipeline still generates one
+                        // Diagram: inline from the model's tool call when supported,
+                        // otherwise the legacy detector + second LLM call.
                         try {
-                            const det = detectDiagramRequest(message);
-                            console.log('[DIAGRAM] Detection:', JSON.stringify({ needsDiagram: det.needsDiagram, type: det.type, confidence: det.confidence, keywords: det.keywords }));
-                            logger.log('stream_diagram_detection', { needsDiagram: det.needsDiagram, type: det.type, confidence: det.confidence, keywords: det.keywords });
-                            if (det.needsDiagram && det.type) {
-                                const diagramMaxTokens = ctx.providerConfig.config.diagram_max_tokens || 2000;
-                                const diagramTemp = ctx.providerConfig.config.diagram_temperature ?? 0.3;
-                                console.log('[DIAGRAM] Generating:', det.type, 'for topic:', det.topic, 'maxTokens:', diagramMaxTokens);
-                                const dr = await generateDiagramWithProvider({
-                                    type: det.type, topic: det.topic || message,
-                                    userMessage: message, ragContext: ctx.ragContext || undefined
-                                }, ctx.diagramProvider, diagramTemp, diagramMaxTokens);
-                                console.log('[DIAGRAM] Generated:', { extracted: dr.extractedSuccessfully, syntaxLen: dr.syntax.length, title: dr.title });
-                                const val = validateMermaidSyntax(dr.syntax, det.type);
-                                const syn = val.corrected || dr.syntax;
-                                console.log('[DIAGRAM] Validated:', { valid: val.isValid, corrected: !!val.corrected, errors: val.errors, warnings: val.warnings });
-                                logger.log('stream_diagram_result', { extracted: dr.extractedSuccessfully, valid: val.isValid, corrected: !!val.corrected, title: dr.title, syntaxLen: syn.length, errors: val.errors });
-                                if (dr.extractedSuccessfully && (val.isValid || val.corrected)) {
-                                    console.log('[DIAGRAM] Sending SSE diagram event, syntax length:', syn.length);
-                                    controller.enqueue(encoder.encode(`data: ${JSON.stringify({
-                                        type: 'diagram', diagram: { type: dr.type, syntax: syn, title: dr.title }
-                                    })}\n\n`));
-                                } else {
-                                    console.log('[DIAGRAM] SKIPPED: extracted=', dr.extractedSuccessfully, 'valid=', val.isValid, 'corrected=', !!val.corrected);
-                                    // If extraction failed but we have SOME syntax, try to send it anyway (best effort)
-                                    if (syn.length > 10 && syn.includes('\n')) {
-                                        console.log('[DIAGRAM] Sending best-effort diagram despite validation issues');
-                                        controller.enqueue(encoder.encode(`data: ${JSON.stringify({
-                                            type: 'diagram', diagram: { type: dr.type, syntax: syn, title: dr.title || 'Diagram' }
-                                        })}\n\n`));
-                                    }
-                                }
+                            const diagram = ctx.chatProvider.supportsDiagramTool
+                                ? finalizeDiagram(toolDiagram)
+                                : await generateDiagramLegacy(message, ctx, logger);
+
+                            if (diagram) {
+                                logger.log('stream_diagram_result', {
+                                    type: diagram.type, title: diagram.title,
+                                    syntaxLen: diagram.syntax.length,
+                                    source: ctx.chatProvider.supportsDiagramTool ? 'tool_call' : 'legacy_detector'
+                                });
+                                controller.enqueue(encoder.encode(
+                                    `data: ${JSON.stringify({ type: 'diagram', diagram })}\n\n`
+                                ));
                             }
                         } catch (diagErr: any) {
                             console.error('[DIAGRAM] ERROR:', diagErr?.message || diagErr);
@@ -667,6 +682,9 @@ app.post('/api/chat/stream', async (c) => {
                                 if (parsed.text) {
                                     fullText += parsed.text;
                                     controller.enqueue(encoder.encode(`data: ${JSON.stringify({ type: 'token', text: parsed.text })}\n\n`));
+                                }
+                                if (parsed.diagram) {
+                                    toolDiagram = parsed.diagram;
                                 }
                                 if (parsed.done && parsed.tokens_in) {
                                     logger.log('ai_response', {
@@ -703,7 +721,8 @@ app.post('/api/chat/stream', async (c) => {
                     ...ctx.chatMessages
                 ],
                 temperature: ctx.providerConfig.config.chat_temperature,
-                max_tokens: ctx.providerConfig.config.chat_max_tokens
+                max_tokens: ctx.providerConfig.config.chat_max_tokens,
+                diagramTool: !!ctx.chatProvider.supportsDiagramTool
             });
 
             let finalMessage = stripMermaidFromResponse(chatResponse.content);
@@ -717,23 +736,9 @@ app.post('/api/chat/stream', async (c) => {
 
             let diagram = null;
             try {
-                const det = detectDiagramRequest(message);
-                console.log('[DIAGRAM-FALLBACK] Detection:', JSON.stringify({ needsDiagram: det.needsDiagram, type: det.type, confidence: det.confidence }));
-                if (det.needsDiagram && det.type) {
-                    const diagramMaxTokens = ctx.providerConfig.config.diagram_max_tokens || 2000;
-                    const dr = await generateDiagramWithProvider({
-                        type: det.type, topic: det.topic || message,
-                        userMessage: message, ragContext: ctx.ragContext || undefined
-                    }, ctx.diagramProvider, ctx.providerConfig.config.diagram_temperature ?? 0.3, diagramMaxTokens);
-                    console.log('[DIAGRAM-FALLBACK] Generated:', { extracted: dr.extractedSuccessfully, syntaxLen: dr.syntax.length });
-                    const val = validateMermaidSyntax(dr.syntax, det.type);
-                    const syn = val.corrected || dr.syntax;
-                    if (dr.extractedSuccessfully && (val.isValid || val.corrected)) {
-                        diagram = { type: dr.type, syntax: syn, title: dr.title };
-                    } else if (syn.length > 10 && syn.includes('\n')) {
-                        diagram = { type: dr.type, syntax: syn, title: dr.title || 'Diagram' };
-                    }
-                }
+                diagram = ctx.chatProvider.supportsDiagramTool
+                    ? finalizeDiagram(chatResponse.diagram)
+                    : await generateDiagramLegacy(message, ctx, logger);
             } catch (diagErr: any) {
                 console.error('[DIAGRAM-FALLBACK] ERROR:', diagErr?.message || diagErr);
             }
@@ -1026,6 +1031,95 @@ app.get('/api/admin/providers', adminAuth, async (c) => {
 });
 
 // Admin: Switch active AI provider
+// ==========================================
+// Secret provider-switch URLs (demo convenience)
+//
+//   GET /api/switch/:token/:provider   -> make that provider active
+//   GET /api/switch/:token             -> show which one is active
+//
+// :token must equal the PROVIDER_SWITCH_TOKEN secret. Bookmark the URLs and
+// hit them from a phone mid-demo to flip between Claude / OpenAI / Workers AI.
+//
+// These are GETs that mutate state on purpose — that's what makes them
+// bookmarkable. Anyone holding the token can flip the provider, so treat the
+// URL itself as the credential and rotate it with `wrangler secret put`.
+// ==========================================
+const SWITCHABLE_PROVIDERS = ['anthropic', 'openai', 'cloudflare'] as const;
+
+/** Length-safe comparison so the token can't be probed a character at a time. */
+function tokenMatches(supplied: string, expected: string): boolean {
+    if (!expected || supplied.length !== expected.length) return false;
+    let diff = 0;
+    for (let i = 0; i < supplied.length; i++) {
+        diff |= supplied.charCodeAt(i) ^ expected.charCodeAt(i);
+    }
+    return diff === 0;
+}
+
+app.get('/api/switch/:token', async (c) => {
+    if (!tokenMatches(c.req.param('token'), c.env.PROVIDER_SWITCH_TOKEN || '')) {
+        return c.json({ error: 'Not found' }, 404);
+    }
+
+    const rows = await c.env.DB.prepare(
+        'SELECT provider, model_chat, is_active FROM ai_provider_config ORDER BY provider'
+    ).all();
+
+    const active = (rows.results || []).find((r: any) => r.is_active) as any;
+    return c.json({
+        active: active ? { provider: active.provider, model: active.model_chat } : null,
+        available: (rows.results || []).map((r: any) => ({
+            provider: r.provider, model: r.model_chat, active: !!r.is_active
+        }))
+    });
+});
+
+app.get('/api/switch/:token/:provider', async (c) => {
+    if (!tokenMatches(c.req.param('token'), c.env.PROVIDER_SWITCH_TOKEN || '')) {
+        // 404 rather than 401 — don't confirm the endpoint exists to a wrong token.
+        return c.json({ error: 'Not found' }, 404);
+    }
+
+    const provider = c.req.param('provider').toLowerCase();
+    if (!SWITCHABLE_PROVIDERS.includes(provider as any)) {
+        return c.json({ error: `Unknown provider '${provider}'`, allowed: SWITCHABLE_PROVIDERS }, 400);
+    }
+
+    const row = await c.env.DB.prepare(
+        'SELECT id, provider, model_chat FROM ai_provider_config WHERE provider = ? LIMIT 1'
+    ).bind(provider).first() as any;
+    if (!row) {
+        return c.json({ error: `Provider '${provider}' is not configured in ai_provider_config` }, 404);
+    }
+
+    // Fail before switching rather than after — a mid-demo switch to a provider
+    // with no key would break chat on the next message instead of here.
+    if (provider === 'anthropic' || provider === 'openai') {
+        const dbKey = await c.env.DB.prepare(
+            'SELECT api_key FROM api_keys_config WHERE service = ? AND is_enabled = 1 LIMIT 1'
+        ).bind(provider).first() as any;
+        const envKey = provider === 'anthropic' ? c.env.ANTHROPIC_API_KEY : c.env.OPENAI_API_KEY;
+        if (!dbKey?.api_key && !envKey) {
+            return c.json({
+                error: `No API key configured for ${provider} — not switching`,
+                hint: `wrangler secret put ${provider.toUpperCase()}_API_KEY`
+            }, 400);
+        }
+    }
+
+    await c.env.DB.batch([
+        c.env.DB.prepare("UPDATE ai_provider_config SET is_active = 0, updated_at = datetime('now')"),
+        c.env.DB.prepare("UPDATE ai_provider_config SET is_active = 1, updated_at = datetime('now') WHERE id = ?").bind(row.id)
+    ]);
+
+    return c.json({
+        success: true,
+        message: `Now using ${row.provider} (${row.model_chat})`,
+        active: { provider: row.provider, model: row.model_chat },
+        note: 'Applies to the next message. Existing conversations keep their history.'
+    });
+});
+
 app.post('/api/admin/providers/switch', adminAuth, async (c) => {
     try {
         const body = await c.req.json() as { provider_id: number };
